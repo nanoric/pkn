@@ -1,0 +1,2 @@
+void base_dummy()
+{}
