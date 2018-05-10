@@ -17,21 +17,7 @@ namespace pkn
     {
     public:
         virtual ~ProcessUtils() {}
-    public:
-        static ProcessUtils* instance()
-        {
-            static std::mutex m;
 
-            if (_instance != nullptr)
-                return _instance;
-
-            std::lock_guard<std::mutex> l(m);
-            if (_instance != nullptr)
-                return _instance;
-
-            _instance = new ProcessUtils;
-            return _instance;
-        }
         static std::vector<euint64_t> allPids()
         {
             DWORD ids[1024];
@@ -77,10 +63,6 @@ namespace pkn
             std::string sname(name);
             return std::u32string(sname.begin(), sname.end());
         };
-    protected:
-        static ProcessUtils* _instance;
     };
-
-    __declspec(selectany) ProcessUtils* ProcessUtils::_instance = nullptr;
 }
 

@@ -13,21 +13,6 @@ namespace pkn
     class KernelProcessUtils : public ProcessUtils
     {
     public:
-        static ProcessUtils* instance()
-        {
-            static std::mutex m;
-
-            if (_instance != nullptr)
-                return _instance;
-
-            std::lock_guard<std::mutex> l(m);
-            if (_instance != nullptr)
-                return _instance;
-
-            _instance = new KernelProcessUtils;
-            return _instance;
-        }
-    public:
         virtual ~KernelProcessUtils() override {}
     protected:
         virtual estr_t get_process_name(euint64_t pid) override
