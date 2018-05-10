@@ -4,6 +4,11 @@
 namespace pkn
 {
 
+    void IProcessRegions::init()
+    {
+        _retrive_memory_regions();
+    }
+
     void IProcessRegions::refresh_regions()
     {
         _clear_regions();
@@ -16,8 +21,8 @@ namespace pkn
         MemoryRegions results;
         std::copy_if(regions.begin(), regions.end(), std::back_inserter(results), [&, this](const MemoryRegion &region)
         {
-            auto file = mapped_file(region.base);
-            if (-1 != file.find(executable_name))
+            auto file = file_base_name(mapped_file(region.base));
+            if (file == executable_name)
                 return true;
             return false;
         });
@@ -74,6 +79,7 @@ namespace pkn
     void IProcessRegions::_retrive_memory_regions()
     {
         this->_clear_regions();
+        _regions = get_all_memory_regions();
         for (const auto &region : _regions)
         {
             if (region.readable())
@@ -90,7 +96,7 @@ namespace pkn
         }
     }
 
-    void ProcessAddressTypeJudger::_retrive_memory_regions()
+    void ProcessAddressTypeJudger::_retrive_memory_informations()
     {
         auto process_base = _basic_process.base();
         auto process_base_msb = msb(process_base);
@@ -102,6 +108,11 @@ namespace pkn
 
         auto main_file_name = file_base_name(_addressable_process.mapped_file(process_base));
         _main_regions = _addressable_process.file_regions(main_file_name);
+    }
+
+    void ProcessAddressTypeJudger::init()
+    {
+        _retrive_memory_informations();
     }
 
     MemoryRegions ProcessAddressTypeJudger::main_file_regions() const

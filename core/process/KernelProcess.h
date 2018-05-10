@@ -71,7 +71,7 @@ namespace pkn
     class KernelProcessRegions : virtual public KernelProcessBase, virtual public IProcessRegions
     {
     public:
-        KernelProcessRegions(pid_t pid) : KernelProcessBase(pid) {}
+        KernelProcessRegions(pid_t pid) : KernelProcessBase(pid) { init(); }
         virtual ~KernelProcessRegions() override = default;
     public:
         virtual MemoryRegions get_all_memory_regions() override;
@@ -92,7 +92,10 @@ namespace pkn
             KernelReadableProcess(pid),
             KernelWritableProcess(pid),
             KernelProcessRegions(pid),
-            ProcessAddressTypeJudger(*this) {}
+            ProcessAddressTypeJudger(*this)
+        {
+            ProcessAddressTypeJudger::init();
+        }
         virtual ~KernelProcess() override = default;
     };
 }

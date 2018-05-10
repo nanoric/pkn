@@ -17,6 +17,7 @@ namespace pkn
     public:
         virtual ~IProcessRegions() = default;
     protected:
+        void init();
         virtual MemoryRegions get_all_memory_regions() PURE_VIRTUAL_FUNCTION_BODY;
         virtual estr_t get_mapped_file(erptr_t remote_address) const PURE_VIRTUAL_FUNCTION_BODY;
     public:
@@ -42,11 +43,12 @@ namespace pkn
     class ProcessAddressTypeJudger
     {
     public:
-        virtual ~ProcessAddressTypeJudger() = default;
-    public:
         // this need a instance both inherit IProcessRegions and IBasicProcess
         template <class T>
         ProcessAddressTypeJudger(T &process) : _addressable_process(process), _basic_process(process) {}
+        virtual ~ProcessAddressTypeJudger() = default;
+    protected:
+        void init();
     public:
         MemoryRegions main_file_regions() const;
         bool seems_heap_address(erptr_t address) const;
@@ -55,7 +57,7 @@ namespace pkn
         // address differ less than 2GB
         bool is_address_seems_near(erptr_t p1, erptr_t p2) const;
     private:
-        void _retrive_memory_regions();
+        void _retrive_memory_informations();
     private:
         MemoryRegions _main_regions;
         rptr_t process_executable_memory_type_mask;

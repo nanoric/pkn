@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <type_traits>
 
 #include "../base/types.h"
 #include "../process/IProcess.h"
@@ -18,16 +19,9 @@ namespace pkn
         template <typename T>
         inline T read(erptr_t remote_address) const
         {
-            char buffer[sizeof(T)];
-            _readable_process.read_unsafe(remote_address, sizeof(T), &buffer);
+            std::aligned_storage<sizeof(T), 16>::type buffer[1];
+            _readable_process.read_unsafe(remote_address, sizeof(T), buffer);
             return *(T*)buffer;
-        }
-
-        // read as encrypted erptr_t type, read unencrypted data first, then, encrypt
-        template <>
-        inline erptr_t read<erptr_t>(erptr_t remote_address) const
-        {
-            return erptr_t(read<rptr_t>(remote_address));
         }
 
         template <typename T>
