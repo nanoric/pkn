@@ -3,24 +3,28 @@
 #include <stdint.h>
 #include <vector>
 
-#include "../types.h"
-#include "Process/MemoryRegion.h"
+#include "../base/types.h"
+#include "../process/MemoryRegion.h"
 
-struct Input
+
+namespace pkn
 {
-    rptr_t base;
-    size_t size;
-};
-using Output = erptr_t;
-
-using Inputs = std::vector<Input>;
-using Outputs = std::vector<Output>;
-
-struct DefaultRegionFilter
-{
-    bool operator()(const MemoryRegion &region)
+    struct Input
     {
-        return true;
-    }
-};
-using seek_result_t = Outputs;
+        rptr_t base;
+        size_t size;
+    };
+    using Output = erptr_t;
+
+    using Inputs = std::vector<Input>;
+    using Outputs = std::vector<Output>;
+
+    struct DefaultRegionFilter
+    {
+        bool operator()(const MemoryRegion &region)
+        {
+            return true;
+        }
+    };
+    using seek_result_t = Outputs;
+}
