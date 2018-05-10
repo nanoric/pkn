@@ -240,6 +240,21 @@ namespace pkn
         }
         throw kernel_get_mouse_pos_error();
     }
+
+    bool Driver::protect_process(pid_t pid)
+    {
+        ProtectProcessInput inp{xor_key, pid};
+        EncryptInputByXor();
+        if (ioctl(IOCTL_PLAYERKNOWNS_PROTECT_PROCESS, &inp, sizeof(inp), nullptr, nullptr))
+            return true;
+        return false;
+    }
+
+    void Driver::unprotect_process()
+    {
+        ioctl(IOCTL_PLAYERKNOWNS_UNPROTECT_PROCESS, nullptr, 0, nullptr, nullptr);
+    }
+
     //
     //void Driver::set_mouse_pos(int x, int y)
     //{

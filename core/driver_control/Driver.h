@@ -66,13 +66,17 @@ namespace pkn
     public:
         Driver() {};
         ~Driver();
-        inline bool is_opened() { return _handle != (void *)-1 || _handle != nullptr; };
+        inline bool is_opened() { return _handle != (void *)-1 && _handle != nullptr; };
     protected:
+        // initialization
         bool open(const wchar_t *device_name);
-        static void xor_memory(void *address, size_t size, uint64_t xor_key);
+
     public:
+        // setter
         inline void set_xor_key(uint64_t xor_key) { this->xor_key = xor_key; }
+
     public:
+        // process
         void read_process_memory(pid_t pid, erptr_t remote_address, size_t size, void *buffer) const;
         //void read_process_memories(pid_t pid, size_t count, const ReadProcessMemoriesData *pdatas) const;
         NTSTATUS wait_for_process(pid_t pid)const;
@@ -87,11 +91,21 @@ namespace pkn
         void get_process_times(pid_t pid, uint64_t * pcreation_time, uint64_t * pexit_time, uint64_t * pkernel_time, uint64_t * puser_time);
         estr_t get_process_name(pid_t pid);
 
-
+    public:
+        // mouse
         void get_mouse_pos(int *x, int *y);
         /* x : 0-65535, y : 0-65535 */
         //void set_mouse_pos(int x, int y);
         //void synthesize_mouse(SynthesizeMouseData *datas, size_t count);
+
+    public:
+        // process protect
+        bool protect_process(pid_t pid);
+        void unprotect_process();
+
+    protected:
+        // protected member
+        static void xor_memory(void *address, size_t size, uint64_t xor_key);
     private:
         bool _get_physical_memory_address(pid_t pid, erptr_t remote_address, uint64_t *pphysical_address) const;
         bool _write_physical_memory(erptr_t remote_address, size_t size, const void *data) const;
