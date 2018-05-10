@@ -22,17 +22,29 @@ public:
     using internal_t = std::basic_string_view<ebasic_t>;
 public:
     using internal_t::basic_string_view;
-    constexpr real_t value() const
+    real_t value() const
     {
         return real_t(this->begin(), this->end());
     }
-    constexpr inline operator real_t()const
+    inline operator real_t()const
     {
         return value();
     }
-    constexpr inline operator real_runtime_t()const
+    inline operator real_runtime_t()const
     {
         return real_runtime_t(this->begin(), this->end());
+    }
+    inline std::string to_string()
+    {
+        return std::string(this->begin(), this->end());
+    }
+    inline std::wstring to_wstring()
+    {
+        return std::wstring(this->begin(), this->end());
+    }
+    inline std::u32string to_u32string()
+    {
+        return std::u32string(this->begin(), this->end());
     }
 };
 

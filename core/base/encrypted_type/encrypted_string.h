@@ -59,6 +59,18 @@ public:
     {
         return value();
     }
+    inline std::string to_string()
+    {
+        return std::string(this->begin(), this->end());
+    }
+    inline std::wstring to_wstring()
+    {
+        return std::wstring(this->begin(), this->end());
+    }
+    inline std::u32string to_u32string()
+    {
+        return std::u32string(this->begin(), this->end());
+    }
 };
 
 namespace std
