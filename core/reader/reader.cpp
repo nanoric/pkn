@@ -1,0 +1,2 @@
+void reader_dummy()
+{}
