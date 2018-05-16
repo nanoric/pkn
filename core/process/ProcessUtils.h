@@ -41,7 +41,8 @@ namespace pkn
                     continue;
                 try
                 {
-                    if (process_name == file_base_name(get_process_name(pid)))
+                    auto current_process_name = file_base_name(get_process_name(pid));
+                    if (process_name == current_process_name)
                         return pid;
                 }
                 catch (const std::exception&)
@@ -53,14 +54,14 @@ namespace pkn
     protected:
         virtual estr_t get_process_name(euint64_t pid)
         {
-            char name[10240] = {};
+            wchar_t name[10240] = {};
             HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, (DWORD)pid);
             if (process)
             {
-                GetProcessImageFileNameA(process, name, sizeof(name));
+                GetProcessImageFileNameW(process, name, sizeof(name));
                 CloseHandle(process);
             }
-            std::string sname(name);
+            std::wstring sname(name);
             return std::u32string(sname.begin(), sname.end());
         };
     };
