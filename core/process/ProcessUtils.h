@@ -18,7 +18,7 @@ namespace pkn
     public:
         virtual ~ProcessUtils() {}
 
-        static std::vector<euint64_t> allPids()
+        static std::vector<euint64_t> all_pids()
         {
             DWORD ids[1024];
             DWORD sizeNeeded;
@@ -35,7 +35,7 @@ namespace pkn
 
         euint64_t pid_from_process_name(const estr_t &process_name)
         {
-            for (auto pid : allPids())
+            for (auto pid : all_pids())
             {
                 if (pid <= 4) // 0 : Idle, 4 : System
                     continue;
