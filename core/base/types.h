@@ -21,5 +21,6 @@ using estr_t = basic_encrypted_string<char32_t>;
 using estrv_t = basic_encrypted_string_view<char32_t>;
 
 using random_t = compile_time::random_t;
+using pid_t = euint64_t;
 
 #define make_const_encstr make_const_encrypted_string

@@ -59,7 +59,6 @@ namespace pkn
     class kernel_not_implemented_error : public kernel_ioctrl_error
     {};
 
-    using pid_t = euint64_t;
     class Driver : noncopyable
     {
         //const size_t maximun_copy_size_one_piece = 0x7FFFFFFF;
