@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <fixed_function>
+#else /*use EASTL*/
+#include <EASTL\fixed_function.h>
+#endif
+

@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <slist>
+#else /*use EASTL*/
+#include <EASTL\slist.h>
+#endif
+

@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <priority_queue>
+#else /*use EASTL*/
+#include <EASTL\priority_queue.h>
+#endif
+

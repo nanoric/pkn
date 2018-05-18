@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <bitvector>
+#else /*use EASTL*/
+#include <EASTL\bitvector.h>
+#endif
+

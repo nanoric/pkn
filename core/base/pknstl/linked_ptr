@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <linked_ptr>
+#else /*use EASTL*/
+#include <EASTL\linked_ptr.h>
+#endif
+

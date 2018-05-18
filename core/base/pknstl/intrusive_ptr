@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <intrusive_ptr>
+#else /*use EASTL*/
+#include <EASTL\intrusive_ptr.h>
+#endif
+

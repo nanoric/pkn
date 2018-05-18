@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <unordered_map>
+#else /*use EASTL*/
+#include <EASTL\unordered_map.h>
+#endif
+

@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <safe_ptr>
+#else /*use EASTL*/
+#include <EASTL\safe_ptr.h>
+#endif
+

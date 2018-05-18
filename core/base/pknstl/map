@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <map>
+#else /*use EASTL*/
+#include <EASTL\map.h>
+#endif
+

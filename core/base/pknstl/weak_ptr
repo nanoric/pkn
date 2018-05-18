@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <weak_ptr>
+#else /*use EASTL*/
+#include <EASTL\weak_ptr.h>
+#endif
+

@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <hash_map>
+#else /*use EASTL*/
+#include <EASTL\hash_map.h>
+#endif
+

@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <ratio>
+#else /*use EASTL*/
+#include <EASTL\ratio.h>
+#endif
+

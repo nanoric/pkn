@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <fixed_vector>
+#else /*use EASTL*/
+#include <EASTL\fixed_vector.h>
+#endif
+

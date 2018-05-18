@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <intrusive_list>
+#else /*use EASTL*/
+#include <EASTL\intrusive_list.h>
+#endif
+

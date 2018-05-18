@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <intrusive_hash_map>
+#else /*use EASTL*/
+#include <EASTL\intrusive_hash_map.h>
+#endif
+

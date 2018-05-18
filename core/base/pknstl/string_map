@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <string_map>
+#else /*use EASTL*/
+#include <EASTL\string_map.h>
+#endif
+

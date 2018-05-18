@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <iterator>
+#else /*use EASTL*/
+#include <EASTL\iterator.h>
+#endif
+

@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <chrono>
+#else /*use EASTL*/
+#include <EASTL\chrono.h>
+#endif
+

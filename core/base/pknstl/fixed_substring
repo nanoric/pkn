@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <fixed_substring>
+#else /*use EASTL*/
+#include <EASTL\fixed_substring.h>
+#endif
+

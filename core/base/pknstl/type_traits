@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <type_traits>
+#else /*use EASTL*/
+#include <EASTL\type_traits.h>
+#endif
+

@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <memory>
+#else /*use EASTL*/
+#include <EASTL\memory.h>
+#endif
+

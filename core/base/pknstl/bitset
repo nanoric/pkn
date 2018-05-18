@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <bitset>
+#else /*use EASTL*/
+#include <EASTL\bitset.h>
+#endif
+

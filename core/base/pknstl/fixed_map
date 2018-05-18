@@ -1,0 +1,8 @@
+﻿#pragma once
+
+#ifdef USE_STDSTL
+#include <fixed_map>
+#else /*use EASTL*/
+#include <EASTL\fixed_map.h>
+#endif
+
