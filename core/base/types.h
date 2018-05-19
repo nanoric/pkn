@@ -24,3 +24,4 @@ using random_t = compile_time::random_t;
 using pid_t = euint64_t;
 
 #define make_const_encstr make_const_encrypted_string
+#define make_qconst_encstr(string_literal) QString::fromStdU32String(make_const_encrypted_string(string_literal).to_u32string())
