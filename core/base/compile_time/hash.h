@@ -114,6 +114,22 @@ namespace compile_time
             }
             return _Val;
         }
+
+        template <class CharType>
+        inline const hash_t hashstri(const CharType *str) noexcept
+        {
+            const hash_t _FNV_offset_basis = __hash_basis;
+            const hash_t _FNV_prime = __hash_prime;
+            hash_t _Val = _FNV_offset_basis;
+            for (hash_t _Next = 0; str[_Next] != '\0'; ++_Next)
+            {
+                const hash_t ch = str[_Next];
+                const hash_t hash_v = ch >= 'a' && ch <= 'z' ? ch + 'A' - 'a' : ch;
+                _Val ^= (hash_t)hash_v;
+                _Val *= _FNV_prime;
+            }
+            return _Val;
+        }
     }
 }
 

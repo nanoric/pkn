@@ -31,7 +31,7 @@ namespace pkn
         KernelProcessBase(pid_t pid);
         virtual ~KernelProcessBase() = default;
     public:
-        inline euint64_t pid() const { return _pid; };
+        inline pid_t pid() const { return _pid; };
         inline Driver &driver() const { return _driver; }
     private:
         pid_t _pid = 0;

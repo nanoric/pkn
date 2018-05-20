@@ -6,7 +6,6 @@
 
 namespace pkn
 {
-
     class IBasicProcess
     {
     public:
@@ -30,5 +29,14 @@ namespace pkn
         virtual ~IWritableProcess() = default;
     public:
         virtual void write_unsafe(erptr_t address, size_t size, const void *buffer) const PURE_VIRTUAL_FUNCTION_BODY;
+    };
+
+    class IExtraProcess
+    {
+    public:
+        virtual ~IExtraProcess() = default;
+    public:
+        virtual erptr_t get_ppeb() const PURE_VIRTUAL_FUNCTION_BODY;
+        virtual erptr_t get_pteb(pid_t thread_id) const PURE_VIRTUAL_FUNCTION_BODY;
     };
 }

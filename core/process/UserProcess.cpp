@@ -1,44 +1,63 @@
 #include "../driver_control/Driver.h"
 #include "../injector/injector.hpp"
 
-#include "KernelProcess.h"
-
+#include "UserProcess.h"
 namespace pkn
 {
-    KernelProcessBase::KernelProcessBase(pid_t pid)
-        : _pid(pid), _driver(SingletonInjector<Driver>::get())
-
+    UserProcessBase::UserProcessBase(pid_t pid)
+        : _pid(pid)
     {
-
     }
 
-    KernelBasicProcess::KernelBasicProcess(pid_t pid)
-        : KernelProcessBase(pid),
+    UserProcessBase::~UserProcessBase()
+    {
+        close();
+    }
+
+    bool UserProcessBase::open(DWORD access_mask)
+    {
+        _handle = OpenProcess(access_mask, false, pid());
+        if (_handle != nullptr)
+            return true;
+        return false;
+    }
+
+    void UserProcessBase::close()
+    {
+        if (_handle)
+        {
+            CloseHandle(_handle);
+            _handle = nullptr;
+        }
+    }
+
+    UserBasicProcess::UserBasicProcess(pid_t pid)
+        : UserProcessBase(pid),
         _base(driver().get_process_base(pid))
     {
     }
 
-    erptr_t KernelBasicProcess::base() const
+    erptr_t UserBasicProcess::base() const
     {
         return this->_base;
     }
 
-    bool KernelBasicProcess::alive() const
+    bool UserBasicProcess::alive() const
     {
         return driver().is_process_alive(pid());
     }
 
-    void KernelReadableProcess::read_unsafe(erptr_t address, size_t size, void *buffer) const
+    void UserReadableProcess::read_unsafe(erptr_t address, size_t size, void *buffer) const
     {
         return driver().read_process_memory(pid(), address, size, buffer);
     }
 
-    void KernelWritableProcess::write_unsafe(erptr_t address, size_t size, const void *buffer) const
+    void UserWritableProcess::write_unsafe(erptr_t address, size_t size, const void *buffer) const
     {
         return driver().write_process_memory(pid(), address, size, buffer);
     }
 
-    MemoryRegions KernelProcessRegions::get_all_memory_regions()
+    MemoryRegions UserProcessRegions::get_all_memory_regions()
     {
         SYSTEM_INFO si;
         GetSystemInfo(&si);
@@ -82,7 +101,7 @@ namespace pkn
         return regions;
     }
 
-    estr_t KernelProcessRegions::get_mapped_file(erptr_t remote_address) const
+    estr_t UserProcessRegions::get_mapped_file(erptr_t remote_address) const
     {
         return driver().get_mapped_file(pid(), remote_address);
     }
