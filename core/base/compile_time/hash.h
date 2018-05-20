@@ -12,7 +12,7 @@ namespace compile_time
 
     /*
     I don't use a hash type, even though it provides more control for template
-    Because : 
+    Because :
     1. No needs for more control or information
     2. function template is easier to use
     */
@@ -35,6 +35,24 @@ namespace compile_time
             if (ch == '\0')
                 continue;
             _Val ^= (hash_t)ch;
+            _Val *= _FNV_prime;
+        }
+        return _Val;
+    }
+
+    template <class CharType, size_t size>
+    inline constexpr hash_t hashi(const CharType(&str)[size]) noexcept
+    {
+        constexpr hash_t _FNV_offset_basis = __hash_basis;
+        constexpr hash_t _FNV_prime = __hash_prime;
+        hash_t _Val = _FNV_offset_basis;
+        for (hash_t _Next = 0; _Next < size; ++_Next)
+        {
+            const hash_t ch = str[_Next];
+            if (ch == '\0')
+                continue;
+            const hash_t hash_v = ch >= 'a' && ch <= 'z' ? ch + 'A' - 'a' : ch;
+            _Val ^= (hash_t)hash_v;
             _Val *= _FNV_prime;
         }
         return _Val;
@@ -74,6 +92,24 @@ namespace compile_time
                 if (ch == '\0')
                     continue;
                 _Val ^= (hash_t)ch;
+                _Val *= _FNV_prime;
+            }
+            return _Val;
+        }
+
+        template <class CharType>
+        inline const hash_t hashi(const CharType *str, size_t size) noexcept
+        {
+            const hash_t _FNV_offset_basis = __hash_basis;
+            const hash_t _FNV_prime = __hash_prime;
+            hash_t _Val = _FNV_offset_basis;
+            for (hash_t _Next = 0; _Next < size; ++_Next)
+            {
+                const hash_t ch = str[_Next];
+                if (ch == '\0')
+                    continue;
+                const hash_t hash_v = ch >= 'a' && ch <= 'z' ? ch + 'A' - 'a' : ch;
+                _Val ^= (hash_t)hash_v;
                 _Val *= _FNV_prime;
             }
             return _Val;
