@@ -188,7 +188,7 @@ namespace pkn
         return false;
     }
 
-    bool Driver::wait_for_process(pid_t pid, UINT64 timeout_nanosec, NTSTATUS *status) const noexcept
+    bool Driver::wait_for_process(pid_t pid, uint64_t timeout_nanosec, NTSTATUS *status) const noexcept
     {
         WaitProcessInput inp = { xor_key, pid, timeout_nanosec };
 
@@ -205,7 +205,7 @@ namespace pkn
         return false;
     }
 
-    bool Driver::wait_for_thread(pid_t tid, UINT64 timeout_nanosec, NTSTATUS *status) const noexcept
+    bool Driver::wait_for_thread(pid_t tid, uint64_t timeout_nanosec, NTSTATUS *status) const noexcept
     {
         WaitThreadInput inp = { xor_key, tid, timeout_nanosec };
 
@@ -236,8 +236,8 @@ namespace pkn
         //throw kernel_not_implemented_error();
         //struct input
         //{
-        //    UINT64 startaddress;
-        //    UINT64 bytestowrite;
+        //    uint64_t startaddress;
+        //    uint64_t bytestowrite;
         //};
         //auto buffer_size = size + sizeof(struct input);
 
@@ -251,16 +251,16 @@ namespace pkn
     }
 
 
-    bool Driver::create_user_thread(UINT64 pid,
+    bool Driver::create_user_thread(uint64_t pid,
         IN PSECURITY_DESCRIPTOR psd OPTIONAL,
         IN bool CreateSuspended,
-        IN UINT64 MaximumStackSize OPTIONAL,
-        IN UINT64 CommittedStackSize OPTIONAL,
-        IN UINT64 StartAddress,
-        IN UINT64 Parameter OPTIONAL,
-        OUT UINT64 *out_pid OPTIONAL,
-        OUT UINT64 *tid OPTIONAL
-        ) const noexcept
+        IN uint64_t MaximumStackSize OPTIONAL,
+        IN uint64_t CommittedStackSize OPTIONAL,
+        IN const void *StartAddress,
+        IN uint64_t Parameter OPTIONAL,
+        OUT pid_t *out_pid OPTIONAL,
+        OUT pid_t *tid OPTIONAL
+    ) const noexcept
     {
         CreateUserThreadInput inp = { xor_key,
             pid,
@@ -269,7 +269,7 @@ namespace pkn
             CreateSuspended,
             MaximumStackSize,
             CommittedStackSize,
-            StartAddress,
+            (UINT64)StartAddress,
             Parameter
         };
         if (psd != nullptr)
@@ -286,6 +286,73 @@ namespace pkn
             DecryptOutputByXor();
             *out_pid = oup.pid;
             *tid = oup.tid;
+            return true;
+        }
+        return false;
+    }
+
+    bool Driver::allocate_virtual_memory(pid_t pid, void *address, size_t size, uint32_t type, uint32_t protect, void **allocated_base, size_t *allocated_size)
+    {
+        AllocateVirtualMemoryInput inp = { xor_key,
+            pid,
+            (UINT64)address,
+            size,
+            type,
+            protect
+        };
+
+        AllocateVirtualMemoryOutput oup;
+        uint32_t out_size = sizeof(oup);
+        EncryptInputByXor();
+        if (ioctl(IOCTL_PLAYERKNOWNS_ALLOCATE_VIRTUAL_MEMORY, &inp, sizeof(inp), &oup, &out_size))
+        {
+            DecryptOutputByXor();
+            if (allocated_base)*allocated_base = (void *)oup.address;
+            if (allocated_size)*allocated_size = oup.size;
+            return true;
+        }
+        return false;
+    }
+
+
+    bool Driver::free_virtual_memory(pid_t pid, void *address, size_t size, uint32_t type, void **freed_base /*= nullptr*/, size_t *freed_size /*= nullptr*/)
+    {
+        FreeVirtualMemoryInput inp = { xor_key,
+            pid,
+            (UINT64)address,
+            size,
+            type
+        };
+        FreeVirtualMemoryOutput oup;
+        uint32_t out_size = sizeof(oup);
+        EncryptInputByXor();
+        if (ioctl(IOCTL_PLAYERKNOWNS_FREE_VIRTUAL_MEMORY, &inp, sizeof(inp), &oup, &out_size))
+        {
+            DecryptOutputByXor();
+            if (freed_base)*freed_base = (void *)oup.address;
+            if (freed_size)*freed_size = oup.size;
+            return true;
+        }
+        return false;
+    }
+
+    bool Driver::protect_virtual_memory(pid_t pid, void *address, size_t size, uint32_t protect, void **protected_base /*= nullptr*/, size_t *protected_size /*= nullptr*/, uint32_t *old_protect /*= nullptr*/)
+    {
+        ProtectVirtualMemoryInput inp = { xor_key,
+            pid,
+            (UINT64)address,
+            size,
+            protect
+        };
+        ProtectVirtualMemoryOutput oup;
+        uint32_t out_size = sizeof(oup);
+        EncryptInputByXor();
+        if (ioctl(IOCTL_PLAYERKNOWNS_PROTECT_VIRTUAL_MEMORY, &inp, sizeof(inp), &oup, &out_size))
+        {
+            DecryptOutputByXor();
+            if (protected_base)*protected_base = (void *)oup.address;
+            if (protected_size)*protected_size = oup.size;
+            if (old_protect)*old_protect = oup.old_protect;
             return true;
         }
         return false;

@@ -110,6 +110,7 @@ namespace pkn
         {
             if (!KernelBasicProcess::init())
                 return false;
+            return true;
         }
         virtual ~KernelProcess() override = default;
     };

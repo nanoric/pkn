@@ -29,8 +29,8 @@ namespace pkn
         // process
         bool read_process_memory(pid_t pid, erptr_t remote_address, size_t size, void *buffer) const noexcept;
         //void read_process_memories(pid_t pid, size_t count, const ReadProcessMemoriesData *pdatas) const;
-        bool wait_for_process(pid_t pid, UINT64 timeout_nanosec, NTSTATUS *status)const noexcept;
-        bool wait_for_thread(pid_t tid, UINT64 timeout_nanosec, NTSTATUS *status)const noexcept;
+        bool wait_for_process(pid_t pid, uint64_t timeout_nanosec, NTSTATUS *status)const noexcept;
+        bool wait_for_thread(pid_t tid, uint64_t timeout_nanosec, NTSTATUS *status)const noexcept;
         //inline bool is_process_alive2(pid_t pid)const { return get_process_exit_status(pid) != 1; };
         inline bool is_process_alive(pid_t pid)const noexcept { NTSTATUS status; wait_for_process(pid, 0, &status); return status == STATUS_TIMEOUT; };
         bool write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data) const noexcept;
@@ -42,19 +42,22 @@ namespace pkn
         bool get_process_times(pid_t pid, uint64_t * pcreation_time, uint64_t * pexit_time, uint64_t * pkernel_time, uint64_t * puser_time)const noexcept;
         bool get_process_name(pid_t pid, estr_t *name) const noexcept;
         erptr_t get_peb_address() const noexcept;
-        bool query_process_information(UINT64 pid, UINT64 informaiton_class, void *buffer, UINT64 buffer_size, ULONG *ret_size) const noexcept;
-        bool query_thread_information(UINT64 tid, UINT64 informaiton_class, void *buffer, UINT64 buffer_size, ULONG *ret_size) const noexcept;
-        bool create_user_thread(UINT64 pid,
+        bool query_process_information(uint64_t pid, uint64_t informaiton_class, void *buffer, uint64_t buffer_size, size_t *ret_size) const noexcept;
+        bool query_thread_information(uint64_t tid, uint64_t informaiton_class, void *buffer, uint64_t buffer_size, size_t *ret_size) const noexcept;
+        bool create_user_thread(uint64_t pid,
             IN PSECURITY_DESCRIPTOR ThreadSecurityDescriptor OPTIONAL,
             IN bool CreateSuspended,
-            IN UINT64 MaximumStackSize OPTIONAL,
-            IN UINT64 CommittedStackSize OPTIONAL,
-            IN UINT64 StartAddress,
-            IN UINT64 Parameter OPTIONAL,
-            OUT UINT64 *out_pid OPTIONAL,
-            OUT UINT64 *tid OPTIONAL
+            IN uint64_t MaximumStackSize OPTIONAL,
+            IN uint64_t CommittedStackSize OPTIONAL,
+            IN const void *StartAddress,
+            IN uint64_t Parameter OPTIONAL,
+            OUT pid_t *out_pid OPTIONAL,
+            OUT pid_t *tid OPTIONAL
             )const noexcept;
 
+        bool allocate_virtual_memory(pid_t pid, void *address, size_t size, uint32_t type, uint32_t protect, void **allocated_base, size_t *allocated_size);
+        bool free_virtual_memory(pid_t pid, void *address, size_t size, uint32_t type, void **freed_base = nullptr, size_t *freed_size = nullptr);
+        bool protect_virtual_memory(pid_t pid, void *address, size_t size, uint32_t protect, void **protected_base = nullptr, size_t *protected_size = nullptr, uint32_t *old_protect = nullptr);
 
     public:
         // mouse

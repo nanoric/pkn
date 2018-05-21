@@ -33,21 +33,30 @@ namespace pkn
             return idVector;
         }
 
-        bool pid_from_process_name(const estr_t &process_name, pid_t *pid)
+        bool pid_from_process_name(const estr_t &process_name, pid_t *pid) const noexcept
         {
-            for (const auto& pid : all_pids())
+            for (const auto& current_pid : all_pids())
             {
-                if (pid <= 4) // 0 : Idle, 4 : System
+                if (current_pid <= 4) // 0 : Idle, 4 : System
                     continue;
-                    auto current_process_name = file_base_name(get_process_name(pid));
+                estr_t process_name;
+                if (get_process_name(current_pid, &process_name))
+                {
+                    auto current_process_name = file_base_name(process_name);
                     if (process_name == current_process_name)
-                        return pid;
+                    {
+                        *pid = current_pid;
+                        return true;
+                    }
+                }
+                return false;
 
             }
-            throw std::runtime_error("No process target found");
+            return false;
+            //throw std::runtime_error("No process target found");
         }
     protected:
-        virtual bool get_process_name(euint64_t pid, estr_t *process_name)
+        virtual bool get_process_name(euint64_t pid, estr_t *process_name) const noexcept
         {
             wchar_t name[10240] = {};
             HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, (DWORD)pid);

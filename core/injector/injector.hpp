@@ -17,20 +17,22 @@ namespace pkn
     class SingletonInjector : protected noncopyable
     {
     public:
-        static T & get()
+        static T &get()
         {
             if (_instance != nullptr)
                 return *_instance;
-            throw instance_not_set_error();
+            //throw instance_not_set_error();
+            return *(T*)nullptr; // !!! reference to nullptr?!
         }
-        static void set(T *instance)
+        static bool set(T *instance)
         {
             if (_instance == nullptr)
             {
                 _instance = instance;
-                return;
+                return true;
             }
-            throw instance_already_set_error();
+            return false;
+            //throw instance_already_set_error();
         }
         static T *_instance;
     };

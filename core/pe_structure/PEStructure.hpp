@@ -2,6 +2,8 @@
 
 #include "WindowsStructure.h"
 #include <core/base/compile_time/hash.h>
+#include <unordered_map>
+#include <vector>
 
 namespace pkn
 {
