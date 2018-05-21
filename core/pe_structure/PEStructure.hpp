@@ -21,25 +21,26 @@ namespace pkn
 #endif
 #endif
         }
-        static inline uint64_t get_kernel32_base(_PPEB peb)
+        static inline uint64_t get_kernel32_base(uint64_t peb)
         {
 
-            auto list = peb->pLdr->InMemoryOrderModuleList.Flink;
+            auto ldr = (PEB_LDR_DATA64 *)(((PEB64*)peb)->Ldr);
+            auto list = ldr->InMemoryOrderModuleList.Flink;
 
             while (list)
             {
-                auto pmodule = (PLDR_DATA_TABLE_ENTRY)list;
+                auto pmodule = (LDR_DATA_TABLE_ENTRY64 *)list;
                 auto &dll_name = pmodule->BaseDllName;
-                if (compile_time::run_time::hashstri(dll_name.pBuffer) == compile_time::hashi(L"Kernel32.dll"))
+                if (compile_time::run_time::hashstri((wchar_t *)dll_name.Buffer) == compile_time::hashi(L"Kernel32.dll"))
                     return (uint64_t)pmodule->DllBase;
-                list = list->Flink;
+                list = ((LIST_ENTRY64 *)list)->Flink;
             }
             return 0;
         }
 
         static inline uint64_t get_get_proc_address()
         {
-            uint64_t kernel32 = get_kernel32_base();
+            uint64_t kernel32 = get_kernel32_base(get_ppeb());
             const uint64_t image_base = kernel32;
 
             auto mz = (PIMAGE_DOS_HEADER)image_base;

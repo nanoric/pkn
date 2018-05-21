@@ -33,7 +33,7 @@ namespace pkn
         return (INVALID_HANDLE_VALUE != _handle);
     }
 
-    void Driver::xor_memory(void *address, size_t size, uint64_t xor_key)
+    void Driver::xor_memory(void *address, size_t size, uint64_t xor_key) noexcept
     {
         for (size_t i = 0; i + 8 <= size; i += 8)
         {
@@ -41,7 +41,7 @@ namespace pkn
         }
     }
 
-    void Driver::read_process_memory(pid_t pid, erptr_t remote_address, size_t size, void *buffer) const
+    bool Driver::read_process_memory(pid_t pid, erptr_t remote_address, size_t size, void *buffer) const noexcept
     {
         ReadProcessMemoryInput inp = { xor_key, pid, remote_address, size, (uint64_t)buffer };
         //inp.xor_val = 0;
@@ -49,33 +49,28 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_READ_PROCESS_MEMORY, &inp, sizeof(inp), nullptr, nullptr))
         {
             xor_memory(buffer, size, xor_key);
-            return;
+            return true;
         }
-        throw kernel_read_memory_error();
+        return false;
     }
 
-    void Driver::write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data) const
+    bool Driver::write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data) const noexcept
     {
         WriteProcessMemoryInput inp = { xor_key, pid, remote_address, size, (uint64_t)data };
         EncryptInputByXor();
         // !!!!!!note: buffer for write process memory is not xor protected!!!!!
-        if (ioctl(IOCTL_PLAYERKNOWNS_WRITE_PROCESS_MEMORY, &inp, sizeof(inp), nullptr, nullptr))
-        {
-            return;
-        }
-        throw kernel_write_memory_error();
+        return ioctl(IOCTL_PLAYERKNOWNS_WRITE_PROCESS_MEMORY, &inp, sizeof(inp), nullptr, nullptr);
     }
 
-    void Driver::force_write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data) const
+    bool Driver::force_write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data) const noexcept
     {
         uint64_t physical_address;
         if (_get_physical_memory_address(pid, remote_address, &physical_address))
-            if (_write_physical_memory(physical_address, size, data))
-                return;
-        throw kernel_get_physical_address_error();
+            return _write_physical_memory(physical_address, size, data);
+        return false;
     }
 
-    void Driver::virtual_query(pid_t pid, erptr_t remote_address, MEMORY_BASIC_INFORMATION *mbi) const
+    bool Driver::virtual_query(pid_t pid, erptr_t remote_address, MEMORY_BASIC_INFORMATION *mbi) const noexcept
     {
         QueryVirtualMemoryInput inp = { xor_key, pid, remote_address };
         QueryVirtualMemoryOutput oup;
@@ -85,12 +80,12 @@ namespace pkn
         {
             DecryptOutputByXor();
             *mbi = oup.mbi;
-            return;
+            return true;
         }
-        throw kernel_query_virtual_memory_error();
+        return false;
     }
 
-    estr_t Driver::get_mapped_file(pid_t pid, uint64_t address)
+    bool Driver::get_mapped_file(pid_t pid, uint64_t address, estr_t *mapped_file) const noexcept
     {
         GetMappedFileInput inp = { xor_key, pid, address };
         GetMappedFileOutput oup = { 0 };
@@ -106,12 +101,13 @@ namespace pkn
             {
                 *i++ = *p;
             }
-            return retv;
+            *mapped_file = retv;
+            return true;
         }
-        throw kernel_get_mapped_file_error();
+        return false;
     }
 
-    erptr_t Driver::get_process_base(pid_t pid)
+    bool Driver::get_process_base(pid_t pid, erptr_t *base) const noexcept
     {
         GetProcessBaseInput inp = { xor_key, pid };
 
@@ -122,12 +118,13 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_GET_PROCESS_BASE, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            return oup.base;
+            *base = oup.base;
+            return true;
         }
-        throw kernel_get_process_base_error();
+        return false;
     }
 
-    void Driver::get_process_times(pid_t pid, uint64_t * pcreation_time, uint64_t * pexit_time, uint64_t * pkernel_time, uint64_t * puser_time)
+    bool Driver::get_process_times(pid_t pid, uint64_t * pcreation_time, uint64_t * pexit_time, uint64_t * pkernel_time, uint64_t * puser_time) const noexcept
     {
         GetProcessTimesInput inp = { xor_key, pid };
         GetProcessTimesOutput oup;
@@ -141,12 +138,12 @@ namespace pkn
             if (pexit_time) *pexit_time = oup.exit_time;
             if (pkernel_time) *pkernel_time = oup.kernel_time;
             if (puser_time) *pcreation_time = oup.user_time;
-            return;
+            return true;
         }
-        throw kernel_get_process_times_error();
+        return false;
     }
 
-    estr_t Driver::get_process_name(pid_t pid)
+    bool Driver::get_process_name(pid_t pid, estr_t *name) const noexcept
     {
         GetProcessNameInput inp = { xor_key, pid };
         GetProcessNameOutput oup = { 0 };
@@ -163,12 +160,18 @@ namespace pkn
             {
                 *i++ = *p;
             }
-            return retv;
+            *name = retv;
+            return true;
         }
-        throw kernel_get_process_name_error();
+        return false;
     }
 
-    NTSTATUS Driver::get_process_exit_status(pid_t pid)const
+    erptr_t Driver::get_peb_address() const noexcept
+    {
+        return 0;
+    }
+
+    bool Driver::get_process_exit_status(pid_t pid, NTSTATUS *status)const noexcept
     {
         TestProcessInput inp = { xor_key, pid };
 
@@ -179,14 +182,15 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_GET_PROCESS_EXIT_STATUS, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            return oup.status;
+            *status = oup.status;
+            return true;
         }
-        throw kernel_get_process_exit_status_error();
+        return false;
     }
 
-    NTSTATUS Driver::wait_for_process(pid_t pid) const
+    bool Driver::wait_for_process(pid_t pid, UINT64 timeout_nanosec, NTSTATUS *status) const noexcept
     {
-        WaitProcessInput inp = { xor_key, pid };
+        WaitProcessInput inp = { xor_key, pid, timeout_nanosec };
 
         WaitProcessOutput oup;
         uint32_t out_size = sizeof(oup);
@@ -195,21 +199,41 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_WAIT_FOR_PROCESS, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            return oup.status;
+            *status = oup.status;
+            return true;
         }
-        throw kernel_wait_process_error();
+        return false;
     }
 
-    bool Driver::_get_physical_memory_address(pid_t pid, erptr_t remote_address, uint64_t *pphysical_address) const
+    bool Driver::wait_for_thread(pid_t tid, UINT64 timeout_nanosec, NTSTATUS *status) const noexcept
     {
-        throw kernel_not_implemented_error();
+        WaitThreadInput inp = { xor_key, tid, timeout_nanosec };
+
+        WaitThreadOutput oup;
+        uint32_t out_size = sizeof(oup);
+
+        EncryptInputByXor();
+        if (ioctl(IOCTL_PLAYERKNOWNS_WAIT_FOR_THREAD, &inp, sizeof(inp), &oup, &out_size))
+        {
+            DecryptOutputByXor();
+            *status = oup.status;
+            return true;
+        }
+        return false;
+    }
+
+    bool Driver::_get_physical_memory_address(pid_t pid, erptr_t remote_address, uint64_t *pphysical_address) const noexcept
+    {
+        return false;
+        //throw kernel_not_implemented_error();
         //uint32_t outputSize = sizeof(*pphysical_address);
         //return ioctl(IOCTL_PLAYERKNOWNS_GET_PHISICAL_ADDRESS, &in, sizeof(in), pphysical_address, &outputSize);
     }
 
-    bool Driver::_write_physical_memory(erptr_t remote_address, size_t size, const void *data) const
+    bool Driver::_write_physical_memory(erptr_t remote_address, size_t size, const void *data) const noexcept
     {
-        throw kernel_not_implemented_error();
+        return false;
+        //throw kernel_not_implemented_error();
         //struct input
         //{
         //    UINT64 startaddress;
@@ -227,7 +251,47 @@ namespace pkn
     }
 
 
-    void Driver::get_mouse_pos(int *x, int *y)
+    bool Driver::create_user_thread(UINT64 pid,
+        IN PSECURITY_DESCRIPTOR psd OPTIONAL,
+        IN bool CreateSuspended,
+        IN UINT64 MaximumStackSize OPTIONAL,
+        IN UINT64 CommittedStackSize OPTIONAL,
+        IN UINT64 StartAddress,
+        IN UINT64 Parameter OPTIONAL,
+        OUT UINT64 *out_pid OPTIONAL,
+        OUT UINT64 *tid OPTIONAL
+        ) const noexcept
+    {
+        CreateUserThreadInput inp = { xor_key,
+            pid,
+            {},
+            psd == nullptr ? false : true,
+            CreateSuspended,
+            MaximumStackSize,
+            CommittedStackSize,
+            StartAddress,
+            Parameter
+        };
+        if (psd != nullptr)
+        {
+            memcpy(&inp.sd, psd, sizeof(SECURITY_DESCRIPTOR));
+        }
+
+        CreateUserThreadOutput oup;
+        uint32_t out_size = sizeof(oup);
+
+        EncryptInputByXor();
+        if (ioctl(IOCTL_PLAYERKNOWNS_CREATE_USER_THREAD, &inp, sizeof(inp), &oup, &out_size))
+        {
+            DecryptOutputByXor();
+            *out_pid = oup.pid;
+            *tid = oup.tid;
+            return true;
+        }
+        return false;
+    }
+
+    bool Driver::get_mouse_pos(int *x, int *y) const noexcept
     {
         GetMousePosOutput oup;
         uint32_t out_size = sizeof(oup);
@@ -236,23 +300,23 @@ namespace pkn
         {
             *x = oup.x;
             *y = oup.y;
-            return;
+            return true;
         }
-        throw kernel_get_mouse_pos_error();
+        return false;
     }
 
-    bool Driver::protect_process(pid_t pid)
+    bool Driver::protect_process(pid_t pid) const noexcept
     {
-        ProtectProcessInput inp{xor_key, pid};
+        ProtectProcessInput inp{ xor_key, pid };
         EncryptInputByXor();
         if (ioctl(IOCTL_PLAYERKNOWNS_PROTECT_PROCESS, &inp, sizeof(inp), nullptr, nullptr))
             return true;
         return false;
     }
 
-    void Driver::unprotect_process()
+    bool Driver::unprotect_process() const noexcept
     {
-        ioctl(IOCTL_PLAYERKNOWNS_UNPROTECT_PROCESS, nullptr, 0, nullptr, nullptr);
+        return ioctl(IOCTL_PLAYERKNOWNS_UNPROTECT_PROCESS, nullptr, 0, nullptr, nullptr);
     }
 
     //
@@ -299,7 +363,7 @@ namespace pkn
     //    throw kernel_synthesize_mouse_error();
     //}
 
-    bool Driver::ioctl(uint32_t code, void *input, uint32_t input_size, void *output, uint32_t *poutput_size) const
+    bool Driver::ioctl(uint32_t code, void *input, uint32_t input_size, void *output, uint32_t *poutput_size) const noexcept
     {
         __try
         {

@@ -19,7 +19,7 @@ namespace pkn
     protected:
         void init();
         virtual MemoryRegions get_all_memory_regions() PURE_VIRTUAL_FUNCTION_BODY;
-        virtual estr_t get_mapped_file(erptr_t remote_address) const PURE_VIRTUAL_FUNCTION_BODY;
+        virtual bool get_mapped_file(erptr_t remote_address, estr_t *mapped_file) const PURE_VIRTUAL_FUNCTION_BODY;
     public:
         void refresh_regions();
     public:
@@ -28,8 +28,8 @@ namespace pkn
         MemoryRegions memory_regions() const;
         MemoryRegions readable_regions() const;
         MemoryRegions readwritable_regions() const;
-        estr_t mapped_file(erptr_t remote_address) const;
-        estr_t mapped_file(const MemoryRegion &region) const;
+        bool mapped_file(erptr_t remote_address, estr_t *image_path) const;
+        bool mapped_file(const MemoryRegion &region, estr_t *image_path) const;
     private:
         void _clear_regions();
         void _retrive_memory_regions();

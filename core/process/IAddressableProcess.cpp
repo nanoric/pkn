@@ -21,9 +21,13 @@ namespace pkn
         MemoryRegions results;
         std::copy_if(regions.begin(), regions.end(), std::back_inserter(results), [&, this](const MemoryRegion &region)
         {
-            auto file = file_base_name(mapped_file(region.base));
-            if (file == executable_name)
-                return true;
+            estr_t file;
+            if (mapped_file(region.base, &file))
+            {
+                file = file_base_name(file);
+                if (file == executable_name)
+                    return true;
+            }
             return false;
         });
         return results;
@@ -44,17 +48,20 @@ namespace pkn
         return _readwriteable_regions;
     }
 
-    estr_t IProcessRegions::mapped_file(erptr_t remote_address) const
+    bool IProcessRegions::mapped_file(erptr_t remote_address, estr_t *image_path) const
     {
         auto i = _mapped_file.lower_bound(remote_address);
         if (i != _mapped_file.end() && i->first == remote_address)
-            return i->second;
-        return {};
+        {
+            *image_path = i->second;
+            return true;
+        }
+        return false;
     }
 
-    estr_t IProcessRegions::mapped_file(const MemoryRegion &region) const
+    bool IProcessRegions::mapped_file(const MemoryRegion &region, estr_t *image_path) const
     {
-        return mapped_file(region.base);
+        return mapped_file(region.base, image_path);
     }
 
     constexpr inline int msb(uint64_t val)
@@ -89,9 +96,12 @@ namespace pkn
 
             if (region.type == MEM_IMAGE)
             {
-                auto image_path = get_mapped_file(region.base);
-                auto base_name = file_base_name(image_path);
-                _mapped_file[region.base] = base_name;
+                estr_t image_path;
+                if (get_mapped_file(region.base, &image_path))
+                {
+                    auto base_name = file_base_name(image_path);
+                    _mapped_file[region.base] = base_name;
+                }
             }
         }
     }
@@ -106,8 +116,12 @@ namespace pkn
         memory_type_mask = memory_all_mask - memory_lower_mask;
         process_executable_memory_type_mask = process_base & memory_type_mask;
 
-        auto main_file_name = file_base_name(_addressable_process.mapped_file(process_base));
-        _main_regions = _addressable_process.file_regions(main_file_name);
+        estr_t image_path;
+        if (_addressable_process.mapped_file(process_base, &image_path))
+        {
+            auto main_file_name = file_base_name(image_path);
+            _main_regions = _addressable_process.file_regions(main_file_name);
+        }
     }
 
     void ProcessAddressTypeJudger::init()

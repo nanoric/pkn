@@ -44,6 +44,7 @@ namespace pkn
         KernelBasicProcess(pid_t pid);
         virtual ~KernelBasicProcess() override = default;
     public:
+        bool init();
         virtual erptr_t base() const override;
         virtual bool alive() const override;
     protected:
@@ -56,7 +57,7 @@ namespace pkn
         KernelReadableProcess(pid_t pid) : KernelProcessBase(pid) {}
         virtual ~KernelReadableProcess() override = default;
     public:
-        virtual void read_unsafe(erptr_t address, size_t size, void *buffer) const override;
+        virtual bool read_unsafe(erptr_t address, size_t size, void *buffer) const override;
     };
 
     class KernelWritableProcess : virtual public KernelProcessBase, virtual public IWritableProcess
@@ -65,17 +66,26 @@ namespace pkn
         KernelWritableProcess(pid_t pid) : KernelProcessBase(pid) {}
         virtual ~KernelWritableProcess() override = default;
     public:
-        virtual void write_unsafe(erptr_t address, size_t size, const void *buffer) const override;
+        virtual bool write_unsafe(erptr_t address, size_t size, const void *buffer) const override;
     };
 
     class KernelProcessRegions : virtual public KernelProcessBase, virtual public IProcessRegions
     {
     public:
-        KernelProcessRegions(pid_t pid) : KernelProcessBase(pid) { init(); }
+        KernelProcessRegions(pid_t pid) : KernelProcessBase(pid) { IProcessRegions::init(); }
         virtual ~KernelProcessRegions() override = default;
     public:
         virtual MemoryRegions get_all_memory_regions() override;
-        virtual estr_t get_mapped_file(erptr_t remote_address) const override;
+        virtual bool get_mapped_file(erptr_t remote_address, estr_t *mapped_file) const override;
+    };
+
+    class KernelExtraProcess : virtual public KernelProcessBase, virtual public IExtraProcess
+    {
+    public:
+        KernelExtraProcess(pid_t pid) : KernelProcessBase(pid) { }
+        virtual ~KernelExtraProcess() override = default;
+    public:
+        virtual erptr_t get_peb_address() const override;
     };
 
     class KernelProcess
@@ -95,6 +105,11 @@ namespace pkn
             ProcessAddressTypeJudger(*this)
         {
             ProcessAddressTypeJudger::init();
+        }
+        bool init()
+        {
+            if (!KernelBasicProcess::init())
+                return false;
         }
         virtual ~KernelProcess() override = default;
     };

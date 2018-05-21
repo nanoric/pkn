@@ -20,7 +20,7 @@ namespace pkn
     public:
         virtual ~IReadableProcess() = default;
     public:
-        virtual void read_unsafe(erptr_t address, size_t size, void *buffer) const PURE_VIRTUAL_FUNCTION_BODY;
+        virtual bool read_unsafe(erptr_t address, size_t size, void *buffer) const PURE_VIRTUAL_FUNCTION_BODY;
     };
 
     class IWritableProcess
@@ -28,7 +28,7 @@ namespace pkn
     public:
         virtual ~IWritableProcess() = default;
     public:
-        virtual void write_unsafe(erptr_t address, size_t size, const void *buffer) const PURE_VIRTUAL_FUNCTION_BODY;
+        virtual bool write_unsafe(erptr_t address, size_t size, const void *buffer) const PURE_VIRTUAL_FUNCTION_BODY;
     };
 
     class IExtraProcess
@@ -36,7 +36,6 @@ namespace pkn
     public:
         virtual ~IExtraProcess() = default;
     public:
-        virtual erptr_t get_ppeb() const PURE_VIRTUAL_FUNCTION_BODY;
-        virtual erptr_t get_pteb(pid_t thread_id) const PURE_VIRTUAL_FUNCTION_BODY;
+        virtual erptr_t get_peb_address() const PURE_VIRTUAL_FUNCTION_BODY;
     };
 }
