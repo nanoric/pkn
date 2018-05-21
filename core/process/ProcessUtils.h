@@ -33,26 +33,21 @@ namespace pkn
             return idVector;
         }
 
-        euint64_t pid_from_process_name(const estr_t &process_name)
+        bool pid_from_process_name(const estr_t &process_name, pid_t *pid)
         {
-            for (auto pid : all_pids())
+            for (const auto& pid : all_pids())
             {
                 if (pid <= 4) // 0 : Idle, 4 : System
                     continue;
-                try
-                {
                     auto current_process_name = file_base_name(get_process_name(pid));
                     if (process_name == current_process_name)
                         return pid;
-                }
-                catch (const std::exception&)
-                {
-                }
+
             }
             throw std::runtime_error("No process target found");
         }
     protected:
-        virtual estr_t get_process_name(euint64_t pid)
+        virtual bool get_process_name(euint64_t pid, estr_t *process_name)
         {
             wchar_t name[10240] = {};
             HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, (DWORD)pid);
@@ -60,9 +55,10 @@ namespace pkn
             {
                 GetProcessImageFileNameW(process, name, sizeof(name));
                 CloseHandle(process);
+                *process_name = std::wstring(name);
+                return true;
             }
-            std::wstring sname(name);
-            return std::u32string(sname.begin(), sname.end());
+            return false;
         };
     };
 }

@@ -15,9 +15,9 @@ namespace pkn
     public:
         virtual ~KernelProcessUtils() override {}
     protected:
-        virtual estr_t get_process_name(euint64_t pid) override
+        virtual bool get_process_name(pid_t pid, estr_t *process_name) override
         {
-            return SingletonInjector<Driver>::get().get_process_name(pid);
+            return SingletonInjector<Driver>::get().get_process_name(pid, process_name);
         }
     };
 }
