@@ -143,12 +143,12 @@ namespace pkn
         PIMAGE_NT_HEADERS32 pe = (PIMAGE_NT_HEADERS32)PEStructure::pe;
     };
 
-    class PEStructure64 : PEStructure
+    class RawPEStructure64 : PEStructure
     {
     public:
         using PEStructure::PEStructure;
     public:
-        uint64_t rva_to_fileoffset(uint64_t rva)
+        virtual uint64_t rva_to_local_offset(uint64_t rva)
         {
             auto psections = (PIMAGE_SECTION_HEADER)((uint8_t *)&pe->OptionalHeader + pe->FileHeader.SizeOfOptionalHeader);
             if (psections->VirtualAddress > rva)
@@ -178,16 +178,16 @@ namespace pkn
                 sections.push_back(psections[i]);
 
             // save all imports
-            auto pimports = (PIMAGE_IMPORT_DESCRIPTOR)(base + rva_to_fileoffset(pe->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress));
+            auto pimports = (PIMAGE_IMPORT_DESCRIPTOR)(base + rva_to_local_offset(pe->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress));
             auto n = pe->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size / sizeof(IMAGE_IMPORT_DESCRIPTOR);
             for (int i = 0; i < n; i++)
             {
                 auto &imp = pimports[i];
                 if (!imp.Name)
                     break;
-                std::string dll_name = (char*)base + rva_to_fileoffset(imp.Name);
-                auto pthunk = (IMAGE_THUNK_DATA *)(base + rva_to_fileoffset(imp.OriginalFirstThunk ? imp.OriginalFirstThunk : imp.FirstThunk));
-                auto paddrs = (IMAGE_THUNK_DATA *)(base + rva_to_fileoffset(imp.FirstThunk));
+                std::string dll_name = (char*)base + rva_to_local_offset(imp.Name);
+                auto pthunk = (IMAGE_THUNK_DATA *)(base + rva_to_local_offset(imp.OriginalFirstThunk ? imp.OriginalFirstThunk : imp.FirstThunk));
+                auto paddrs = (IMAGE_THUNK_DATA *)(base + rva_to_local_offset(imp.FirstThunk));
                 while (pthunk->u1.AddressOfData)
                 {
                     ImportData data;
@@ -201,7 +201,7 @@ namespace pkn
                     else
                     {
                         data.by_name = true;
-                        data.u.by_name.name = (const char *)(((PIMAGE_IMPORT_BY_NAME)(base + rva_to_fileoffset(pthunk->u1.ForwarderString)))->Name);
+                        data.u.by_name.name = (const char *)(((PIMAGE_IMPORT_BY_NAME)(base + rva_to_local_offset(pthunk->u1.ForwarderString)))->Name);
                         this->imports[dll_name].push_back(data);
                     }
                     pthunk++;
@@ -231,18 +231,21 @@ namespace pkn
         bool relocation(uint64_t rbase)
         {
             bool success = true;
-            auto diff = rbase - pe->OptionalHeader.ImageBase;
-            typedef struct
+            uint64_t diff = rbase - pe->OptionalHeader.ImageBase;
+#pragma pack(push, 1)
+            struct IMAGE_RELOC
             {
-                WORD	offset : 12;
-                WORD	type : 4;
-            } IMAGE_RELOC, *PIMAGE_RELOC;
+                uint16_t  offset : 12;
+                uint16_t  type : 4;
+            };
+            using PIMAGE_RELOC = IMAGE_RELOC * ;
+#pragma pack(pop)
             auto &reloc_directory = pe->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC];
             auto reloc_size = reloc_directory.Size;
-            auto reloc_block = (IMAGE_BASE_RELOCATION *)(base + rva_to_fileoffset(reloc_directory.VirtualAddress));
+            auto reloc_block = (IMAGE_BASE_RELOCATION *)(base + rva_to_local_offset(reloc_directory.VirtualAddress));
             auto size = reloc_block->SizeOfBlock;
-            auto block_base = base + rva_to_fileoffset(reloc_block->VirtualAddress);
-            for (uint8_t *p = (uint8_t *)(reloc_block + 1), *e = p + reloc_block->SizeOfBlock; p < e; p += sizeof(IMAGE_RELOC))
+            auto block_base = base + rva_to_local_offset(reloc_block->VirtualAddress);
+            for (uint8_t *p = (uint8_t *)(reloc_block + 1), *e = p + reloc_block->SizeOfBlock - 8; p < e; p += sizeof(IMAGE_RELOC))
             {
                 PIMAGE_RELOC pr = (PIMAGE_RELOC)p;
                 switch (pr->type)
@@ -250,19 +253,20 @@ namespace pkn
                 case IMAGE_REL_BASED_ABSOLUTE:
                     break;
                 case IMAGE_REL_BASED_HIGH:
-                    *(uint16_t *)(base + rva_to_fileoffset(pr->offset)) += HIWORD(diff);
+                    *(uint16_t *)(base + rva_to_local_offset(pr->offset)) += HIWORD(diff);
                     break;
                 case IMAGE_REL_BASED_LOW:
-                    *(uint16_t *)(base + rva_to_fileoffset(pr->offset)) += LOWORD(diff);
+                    *(uint16_t *)(base + rva_to_local_offset(pr->offset)) += LOWORD(diff);
                     break;
                 case IMAGE_REL_BASED_HIGHLOW:
-                    *(uint32_t *)(base + rva_to_fileoffset(pr->offset)) += uint32_t(diff);
+                    *(uint32_t *)(base + rva_to_local_offset(pr->offset)) += uint32_t(diff);
                     break;
                 case IMAGE_REL_BASED_DIR64:
-                    *(uint64_t *)(base + rva_to_fileoffset(pr->offset)) += diff;
+                    *(uint64_t *)(base + rva_to_local_offset(pr->offset)) += diff;
+                    break;
+                case IMAGE_REL_BASED_HIGHADJ:
                     break;
                 default:  // unknown relocation method
-                case IMAGE_REL_BASED_HIGHADJ:
                     success = false;
                     break;
                 }
@@ -291,5 +295,14 @@ namespace pkn
         std::unordered_map<std::string, std::vector<ImportData>> imports;
         std::vector<IMAGE_SECTION_HEADER> sections;
         PIMAGE_NT_HEADERS64 pe = (PIMAGE_NT_HEADERS64)PEStructure::pe;
+    };
+    class ImagePEStructure64 : public RawPEStructure64
+    {
+    public:
+        using RawPEStructure64::RawPEStructure64;
+        virtual uint64_t rva_to_local_offset(uint64_t rva)override
+        {
+            return rva;
+        }
     };
 }

@@ -432,14 +432,14 @@ namespace pkn
 
     bool Driver::ioctl(uint32_t code, void *input, uint32_t input_size, void *output, uint32_t *poutput_size) const noexcept
     {
-        __try
-        {
+        //__try
+        //{
             return DeviceIoControl(_handle, code, input, input_size, output, poutput_size != nullptr ? *poutput_size : 0, (LPDWORD)poutput_size, nullptr);
-        }
-        __except (1)
-        {
-            return false;
-        }
+        //}
+        //__except (1)
+        //{
+            //return false;
+        //}
     }
 
     PknDriver::PknDriver()
