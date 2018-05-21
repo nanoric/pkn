@@ -33,6 +33,24 @@ namespace pkn
         return results;
     }
 
+    MemoryRegions IProcessRegions::file_regionsi(const estr_t &executable_name) const
+    {
+        auto ln = executable_name.to_lower();
+        auto regions = memory_regions();
+        MemoryRegions results;
+        std::copy_if(regions.begin(), regions.end(), std::back_inserter(results), [&, this](const MemoryRegion &region)
+        {
+            estr_t file;
+            if (mapped_file(region.base, &file))
+            {
+                file = file_base_name(file).to_lower();
+                if (file == ln)
+                    return true;
+            }
+            return false;
+        });
+        return results;
+    }
     MemoryRegions IProcessRegions::memory_regions() const
     {
         return _regions;

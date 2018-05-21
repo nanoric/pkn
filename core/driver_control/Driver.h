@@ -44,20 +44,20 @@ namespace pkn
         erptr_t get_peb_address() const noexcept;
         bool query_process_information(uint64_t pid, uint64_t informaiton_class, void *buffer, uint64_t buffer_size, size_t *ret_size) const noexcept;
         bool query_thread_information(uint64_t tid, uint64_t informaiton_class, void *buffer, uint64_t buffer_size, size_t *ret_size) const noexcept;
-        bool create_user_thread(uint64_t pid,
+        bool create_user_thread(pid_t pid,
             IN PSECURITY_DESCRIPTOR ThreadSecurityDescriptor OPTIONAL,
             IN bool CreateSuspended,
             IN uint64_t MaximumStackSize OPTIONAL,
             IN uint64_t CommittedStackSize OPTIONAL,
-            IN const void *StartAddress,
+            IN uint64_t StartAddress,
             IN uint64_t Parameter OPTIONAL,
             OUT pid_t *out_pid OPTIONAL,
             OUT pid_t *tid OPTIONAL
             )const noexcept;
 
-        bool allocate_virtual_memory(pid_t pid, void *address, size_t size, uint32_t type, uint32_t protect, void **allocated_base, size_t *allocated_size);
-        bool free_virtual_memory(pid_t pid, void *address, size_t size, uint32_t type, void **freed_base = nullptr, size_t *freed_size = nullptr);
-        bool protect_virtual_memory(pid_t pid, void *address, size_t size, uint32_t protect, void **protected_base = nullptr, size_t *protected_size = nullptr, uint32_t *old_protect = nullptr);
+        bool allocate_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, uint32_t protect, erptr_t *allocated_base, size_t *allocated_size);
+        bool free_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, erptr_t *freed_base = nullptr, size_t *freed_size = nullptr);
+        bool protect_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t protect, erptr_t *protected_base = nullptr, size_t *protected_size = nullptr, uint32_t *old_protect = nullptr);
 
     public:
         // mouse

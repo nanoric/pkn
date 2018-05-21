@@ -24,6 +24,7 @@ namespace pkn
         void refresh_regions();
     public:
         MemoryRegions file_regions(const estr_t &executable_name) const;
+        MemoryRegions file_regionsi(const estr_t &executable_name) const; // case insensitive version
 
         MemoryRegions memory_regions() const;
         MemoryRegions readable_regions() const;

@@ -84,5 +84,38 @@ namespace pkn
     {
         return driver().get_peb_address();
     }
+
+    bool KernelProcessMemory::allocate(size_t size, erptr_t*address, size_t *allocated_size) const
+    {
+        return driver().allocate_virtual_memory(pid(), rnullptr, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE, address, allocated_size);
+    }
+
+    bool KernelProcessMemory::protect(erptr_t address, size_t size, uint32_t protect, uint32_t *old_protect /*= nullptr*/) const
+    {
+        return driver().protect_virtual_memory(pid(), address, size, protect, &address, &size, old_protect);
+    }
+
+    bool KernelProcessMemory::free(erptr_t address) const
+    {
+        return driver().free_virtual_memory(pid(), address, 0, MEM_RELEASE, nullptr, nullptr);
+    }
+
+    bool KernelProcessThread::create_thread(erptr_t start_address, erptr_t param, pid_t *thread_id) const
+    {
+        pid_t out_pid;
+        return driver().create_user_thread(pid(),
+            nullptr,
+            false,
+            0, 0,
+            start_address, param,
+            &out_pid,
+            thread_id);
+    }
+
+    bool KernelProcessThread::wait_for_thread(pid_t tid, uint64_t timeout_nanosec, NTSTATUS *result) const
+    {
+        return driver().wait_for_thread(tid, timeout_nanosec, result);
+    }
+
 }
 

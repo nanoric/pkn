@@ -38,4 +38,23 @@ namespace pkn
     public:
         virtual erptr_t get_peb_address() const PURE_VIRTUAL_FUNCTION_BODY;
     };
+
+    class IProcessMemory
+    {
+    public:
+        virtual ~IProcessMemory() = default;
+    public:
+        virtual bool allocate(size_t size, erptr_t *address, size_t *allocated_size = nullptr) const PURE_VIRTUAL_FUNCTION_BODY;
+        virtual bool protect(erptr_t address, size_t size, uint32_t protect, uint32_t *old_protect = nullptr) const PURE_VIRTUAL_FUNCTION_BODY;
+        virtual bool free(erptr_t address) const PURE_VIRTUAL_FUNCTION_BODY;
+    };
+
+    class IProcessThread
+    {
+    public:
+        virtual ~IProcessThread() = default;
+    public:
+        virtual bool create_thread(erptr_t start_address, erptr_t param, pid_t *thread_id) const PURE_VIRTUAL_FUNCTION_BODY;
+        virtual bool wait_for_thread(pid_t tid, uint64_t timeout_nanosec, NTSTATUS *result) const PURE_VIRTUAL_FUNCTION_BODY;
+    };
 }

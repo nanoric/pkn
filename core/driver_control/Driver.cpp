@@ -182,7 +182,7 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_GET_PROCESS_EXIT_STATUS, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            *status = oup.status;
+            if(status) *status = oup.status;
             return true;
         }
         return false;
@@ -199,7 +199,7 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_WAIT_FOR_PROCESS, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            *status = oup.status;
+            if(status) *status = oup.status;
             return true;
         }
         return false;
@@ -216,7 +216,7 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_WAIT_FOR_THREAD, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            *status = oup.status;
+            if(status) *status = oup.status;
             return true;
         }
         return false;
@@ -251,12 +251,12 @@ namespace pkn
     }
 
 
-    bool Driver::create_user_thread(uint64_t pid,
+    bool Driver::create_user_thread(pid_t pid,
         IN PSECURITY_DESCRIPTOR psd OPTIONAL,
         IN bool CreateSuspended,
         IN uint64_t MaximumStackSize OPTIONAL,
         IN uint64_t CommittedStackSize OPTIONAL,
-        IN const void *StartAddress,
+        IN uint64_t StartAddress,
         IN uint64_t Parameter OPTIONAL,
         OUT pid_t *out_pid OPTIONAL,
         OUT pid_t *tid OPTIONAL
@@ -269,7 +269,7 @@ namespace pkn
             CreateSuspended,
             MaximumStackSize,
             CommittedStackSize,
-            (UINT64)StartAddress,
+            StartAddress,
             Parameter
         };
         if (psd != nullptr)
@@ -291,7 +291,7 @@ namespace pkn
         return false;
     }
 
-    bool Driver::allocate_virtual_memory(pid_t pid, void *address, size_t size, uint32_t type, uint32_t protect, void **allocated_base, size_t *allocated_size)
+    bool Driver::allocate_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, uint32_t protect, erptr_t *allocated_base, size_t *allocated_size)
     {
         AllocateVirtualMemoryInput inp = { xor_key,
             pid,
@@ -307,15 +307,15 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_ALLOCATE_VIRTUAL_MEMORY, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            if (allocated_base)*allocated_base = (void *)oup.address;
-            if (allocated_size)*allocated_size = oup.size;
+            if (allocated_base) *allocated_base = oup.address;
+            if (allocated_size) *allocated_size = oup.size;
             return true;
         }
         return false;
     }
 
 
-    bool Driver::free_virtual_memory(pid_t pid, void *address, size_t size, uint32_t type, void **freed_base /*= nullptr*/, size_t *freed_size /*= nullptr*/)
+    bool Driver::free_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, erptr_t *freed_base /*= nullptr*/, size_t *freed_size /*= nullptr*/)
     {
         FreeVirtualMemoryInput inp = { xor_key,
             pid,
@@ -329,14 +329,14 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_FREE_VIRTUAL_MEMORY, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            if (freed_base)*freed_base = (void *)oup.address;
-            if (freed_size)*freed_size = oup.size;
+            if (freed_base) *freed_base = oup.address;
+            if (freed_size) *freed_size = oup.size;
             return true;
         }
         return false;
     }
 
-    bool Driver::protect_virtual_memory(pid_t pid, void *address, size_t size, uint32_t protect, void **protected_base /*= nullptr*/, size_t *protected_size /*= nullptr*/, uint32_t *old_protect /*= nullptr*/)
+    bool Driver::protect_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t protect, erptr_t *protected_base /*= nullptr*/, size_t *protected_size /*= nullptr*/, uint32_t *old_protect /*= nullptr*/)
     {
         ProtectVirtualMemoryInput inp = { xor_key,
             pid,
@@ -350,9 +350,9 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_PROTECT_VIRTUAL_MEMORY, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            if (protected_base)*protected_base = (void *)oup.address;
-            if (protected_size)*protected_size = oup.size;
-            if (old_protect)*old_protect = oup.old_protect;
+            if (protected_base) *protected_base = oup.address;
+            if (protected_size) *protected_size = oup.size;
+            if (old_protect) *old_protect = oup.old_protect;
             return true;
         }
         return false;

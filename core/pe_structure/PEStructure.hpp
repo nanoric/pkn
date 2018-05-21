@@ -4,6 +4,7 @@
 #include <core/base/compile_time/hash.h>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 
 namespace pkn
 {
@@ -109,6 +110,7 @@ namespace pkn
         }u;
         bool by_name;
         bool delayed;
+        uint64_t *imported_address;
     };
 
     class PEStructureDetail : PEStructure
@@ -185,9 +187,11 @@ namespace pkn
                     break;
                 std::string dll_name = (char*)base + rva_to_fileoffset(imp.Name);
                 auto pthunk = (IMAGE_THUNK_DATA *)(base + rva_to_fileoffset(imp.OriginalFirstThunk ? imp.OriginalFirstThunk : imp.FirstThunk));
+                auto paddrs = (IMAGE_THUNK_DATA *)(base + rva_to_fileoffset(imp.FirstThunk));
                 while (pthunk->u1.AddressOfData)
                 {
                     ImportData data;
+                    data.imported_address = (uint64_t *)paddrs;
                     if (pthunk->u1.AddressOfData & IMAGE_ORDINAL_FLAG64)
                     {
                         data.by_name = false;
@@ -201,8 +205,73 @@ namespace pkn
                         this->imports[dll_name].push_back(data);
                     }
                     pthunk++;
+                    paddrs++;
                 }
             }
+        }
+        using import_resolve_callback_t = std::function<uint64_t(const std::string &dll, const char *proc)>;
+        bool resolve_imports(import_resolve_callback_t resolve)
+        {
+            bool success = true;
+            for (auto const &p : imports)
+            {
+                auto const &dll = p.first;
+                for (auto const &data : p.second)
+                {
+                    if (data.by_name)
+                        * data.imported_address = resolve(dll, data.u.by_name.name);
+                    else
+                        *data.imported_address = resolve(dll, (char *)data.u.by_ordinal.ordinal);
+                    if (*data.imported_address == 0)
+                        success = false;
+                }
+            }
+            return success;
+        }
+        bool relocation(uint64_t rbase)
+        {
+            bool success = true;
+            auto diff = rbase - pe->OptionalHeader.ImageBase;
+            typedef struct
+            {
+                WORD	offset : 12;
+                WORD	type : 4;
+            } IMAGE_RELOC, *PIMAGE_RELOC;
+            auto &reloc_directory = pe->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC];
+            auto reloc_size = reloc_directory.Size;
+            auto reloc_block = (IMAGE_BASE_RELOCATION *)(base + rva_to_fileoffset(reloc_directory.VirtualAddress));
+            auto size = reloc_block->SizeOfBlock;
+            auto block_base = base + rva_to_fileoffset(reloc_block->VirtualAddress);
+            for (uint8_t *p = (uint8_t *)(reloc_block + 1), *e = p + reloc_block->SizeOfBlock; p < e; p += sizeof(IMAGE_RELOC))
+            {
+                PIMAGE_RELOC pr = (PIMAGE_RELOC)p;
+                switch (pr->type)
+                {
+                case IMAGE_REL_BASED_ABSOLUTE:
+                    break;
+                case IMAGE_REL_BASED_HIGH:
+                    *(uint16_t *)(base + rva_to_fileoffset(pr->offset)) += HIWORD(diff);
+                    break;
+                case IMAGE_REL_BASED_LOW:
+                    *(uint16_t *)(base + rva_to_fileoffset(pr->offset)) += LOWORD(diff);
+                    break;
+                case IMAGE_REL_BASED_HIGHLOW:
+                    *(uint32_t *)(base + rva_to_fileoffset(pr->offset)) += uint32_t(diff);
+                    break;
+                case IMAGE_REL_BASED_DIR64:
+                    *(uint64_t *)(base + rva_to_fileoffset(pr->offset)) += diff;
+                    break;
+                default:  // unknown relocation method
+                case IMAGE_REL_BASED_HIGHADJ:
+                    success = false;
+                    break;
+                }
+            }
+            return success;
+        }
+        uint64_t entry_point_rva()
+        {
+            return pe->OptionalHeader.AddressOfEntryPoint;
         }
         void load_as_image(void *vbase)
         {

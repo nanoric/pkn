@@ -71,6 +71,30 @@ public:
     {
         return std::u32string(this->begin(), this->end());
     }
+    inline basic_encrypted_string<T> to_lower() const
+    {
+        basic_encrypted_string<T> ls;
+        for (const ebasic_t &ch : *this)
+        {
+            if (ch >= 'A' && ch <= 'Z')
+                ls.push_back(ch + 'a' - 'A');
+            else
+                ls.push_back(ch);
+        }
+        return ls;
+    }
+    inline basic_encrypted_string<T> to_upper() const
+    {
+        basic_encrypted_string<T> ls;
+        for (const ebasic_t &ch : *this)
+        {
+            if (ch >= 'a' && ch <= 'z')
+                ls.push_back(ch + 'A' - 'a');
+            else
+                ls.push_back(ch);
+        }
+        return ls;
+    }
 };
 
 namespace std
