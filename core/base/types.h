@@ -23,5 +23,9 @@ using estrv_t = basic_encrypted_string_view<char32_t>;
 using random_t = compile_time::random_t;
 using pid_t = euint64_t;
 
-#define make_const_encstr make_const_encrypted_string
-#define make_qconst_encstr(string_literal) QString::fromStdU32String(make_const_encrypted_string(string_literal).to_u32string())
+#define make_estr(string_literal) (make_const_encrypted_string(string_literal))
+#define make_eqstr(string_literal) QString::fromStdU32String(make_const_encrypted_string(string_literal).to_u32string())
+#define make_estdstr(string_literal) (make_const_encrypted_string(string_literal).to_string())
+#define make_estdwstr(string_literal) (make_const_encrypted_string(string_literal).to_wstring())
+#define make_ecstr(string_literal) (make_const_encrypted_string(string_literal).to_string().c_str())
+#define make_ecwstr(string_literal) (make_const_encrypted_string(string_literal).to_wstring().c_str())
