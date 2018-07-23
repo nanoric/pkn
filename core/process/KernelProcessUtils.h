@@ -15,9 +15,14 @@ namespace pkn
     public:
         virtual ~KernelProcessUtils() override {}
     protected:
-        virtual bool get_process_name(pid_t pid, estr_t *process_name) const noexcept override
+        virtual bool query_system_information(uint64_t informaiton_class, void *buffer, uint32_t buffer_size, size_t *ret_size) const noexcept override
         {
-            return SingletonInjector<Driver>::get().get_process_name(pid, process_name);
+            return SingletonInjector<Driver>::get().query_system_information(informaiton_class, buffer, buffer_size, ret_size);
+        }
+
+        virtual std::optional<estr_t> get_process_name(euint64_t pid) const noexcept override
+        {
+            return SingletonInjector<Driver>::get().get_process_name(pid);
         }
     };
 }

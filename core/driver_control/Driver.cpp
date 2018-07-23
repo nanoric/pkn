@@ -1,7 +1,10 @@
 #include <Windows.h>
+#include <winternl.h>
 
 #include <stdexcept>
 #include <string>
+#include <string_view>
+
 #include <ntddmou.h>
 
 #include "Driver.h"
@@ -39,6 +42,20 @@ namespace pkn
         {
             *(uint64_t *)((char *)address + i) ^= xor_key;
         }
+    }
+
+    bool Driver::query_system_information(uint64_t informaiton_class, void *buffer, uint32_t buffer_size, size_t *ret_size) const noexcept
+    {
+        QuerySystemInformationInput inp = { xor_key, 0, informaiton_class, buffer_size };
+        uint32_t out_size = (uint32_t)buffer_size;
+        EncryptInputByXor();
+        if (ioctl(IOCTL_PLAYERKNOWNS_QUERY_SYSTEM_INFORMATION, &inp, sizeof(inp), buffer, &out_size))
+        {
+            xor_memory(buffer, out_size, xor_key);
+            *ret_size = out_size;
+            return true;
+        }
+        return false;
     }
 
     bool Driver::read_process_memory(pid_t pid, erptr_t remote_address, size_t size, void *buffer) const noexcept
@@ -143,7 +160,7 @@ namespace pkn
         return false;
     }
 
-    bool Driver::get_process_name(pid_t pid, estr_t *name) const noexcept
+    std::optional<estr_t> Driver::get_process_name(pid_t pid) const noexcept
     {
         GetProcessNameInput inp = { xor_key, pid };
         GetProcessNameOutput oup = { 0 };
@@ -160,14 +177,14 @@ namespace pkn
             {
                 *i++ = *p;
             }
-            *name = retv;
-            return true;
+            return retv;
         }
-        return false;
+        return std::nullopt;
     }
 
     erptr_t Driver::get_peb_address() const noexcept
     {
+        // #todo_get_peb_address
         return 0;
     }
 
@@ -182,7 +199,7 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_GET_PROCESS_EXIT_STATUS, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            if(status) *status = oup.status;
+            if (status) *status = oup.status;
             return true;
         }
         return false;
@@ -199,7 +216,7 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_WAIT_FOR_PROCESS, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            if(status) *status = oup.status;
+            if (status) *status = oup.status;
             return true;
         }
         return false;
@@ -216,7 +233,7 @@ namespace pkn
         if (ioctl(IOCTL_PLAYERKNOWNS_WAIT_FOR_THREAD, &inp, sizeof(inp), &oup, &out_size))
         {
             DecryptOutputByXor();
-            if(status) *status = oup.status;
+            if (status) *status = oup.status;
             return true;
         }
         return false;
@@ -250,6 +267,44 @@ namespace pkn
         //return ioctl(IOCTL_PLAYERKNOWNS_WRITE_PHISICAL_MEMORY, buffer, (decltype(in->bytestowrite))buffer_size);
     }
 
+
+    bool Driver::query_thread_information(uint64_t tid, uint64_t informaiton_class, void *buffer, uint32_t buffer_size, size_t *ret_size) const noexcept
+    {
+        QueryThreadInformationInput inp = { xor_key,
+            tid,
+            informaiton_class,
+            buffer_size,
+        };
+        uint32_t out_size = (uint32_t)buffer_size;
+        EncryptInputByXor();
+        if (ioctl(IOCTL_PLAYERKNOWNS_QUERY_THREAD_INFORMATION, &inp, sizeof(inp), buffer, &out_size))
+        {
+            xor_memory(buffer, out_size, xor_key);
+            *ret_size = out_size;
+            return true;
+        }
+        return false;
+    }
+
+    std::optional<erptr_t> Driver::get_teb_address(uint64_t tid)
+    {
+        typedef struct _THREAD_BASIC_INFORMATION {
+            NTSTATUS                ExitStatus;
+            PVOID                   TebBaseAddress;
+            CLIENT_ID               ClientId;
+            KAFFINITY               AffinityMask;
+            KPRIORITY               Priority;
+            KPRIORITY               BasePriority;
+        } THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
+
+        size_t ret_size;
+        THREAD_BASIC_INFORMATION tbi;
+        if (query_thread_information(tid, 0x00 /*ThreadBasicInformation = 0x00*/, &tbi, sizeof(THREAD_BASIC_INFORMATION), &ret_size))
+        {
+            return (uint64_t)tbi.TebBaseAddress;
+        }
+        return std::nullopt;
+    }
 
     bool Driver::create_user_thread(pid_t pid,
         IN PSECURITY_DESCRIPTOR psd OPTIONAL,
@@ -430,11 +485,15 @@ namespace pkn
     //    throw kernel_synthesize_mouse_error();
     //}
 
-    bool Driver::ioctl(uint32_t code, void *input, uint32_t input_size, void *output, uint32_t *poutput_size) const noexcept
+    bool Driver::ioctl(__in uint32_t code,
+        __in void *input,
+        __in uint32_t input_size,
+        __in_opt void *output,
+        __inout_opt uint32_t *poutput_size) const noexcept
     {
         //__try
         //{
-            return DeviceIoControl(_handle, code, input, input_size, output, poutput_size != nullptr ? *poutput_size : 0, (LPDWORD)poutput_size, nullptr);
+        return DeviceIoControl(_handle, code, input, input_size, output, poutput_size != nullptr ? *poutput_size : 0, (LPDWORD)poutput_size, nullptr);
         //}
         //__except (1)
         //{

@@ -52,15 +52,16 @@ namespace pkn
         void init();
     public:
         MemoryRegions main_file_regions() const;
-        bool seems_heap_address(erptr_t address) const;
-        bool seems_executable_address(erptr_t address) const;
+        bool seems_heap_address(rptr_t address) const;
+        bool seems_executable_address(rptr_t address) const;
 
         // address differ less than 2GB
-        bool is_address_seems_near(erptr_t p1, erptr_t p2) const;
+        bool is_address_seems_near(rptr_t p1, rptr_t p2) const;
     private:
         void _retrive_memory_informations();
     private:
         MemoryRegions _main_regions;
+        erptr_t process_base;
         rptr_t process_executable_memory_type_mask;
         rptr_t memory_type_mask;
         IBasicProcess &_basic_process;

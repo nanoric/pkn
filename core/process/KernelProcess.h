@@ -45,6 +45,7 @@ namespace pkn
         virtual ~KernelBasicProcess() override = default;
     public:
         bool init();
+        virtual pid_t pid() const override { return KernelProcessBase::pid(); }
         virtual erptr_t base() const override;
         virtual bool alive() const override;
     protected:
@@ -90,6 +91,7 @@ namespace pkn
         virtual ~KernelExtraProcess() override = default;
     public:
         virtual erptr_t get_peb_address() const override;
+        virtual erptr_t get_teb_address(pid_t tid) const override;
     };
 
     class KernelProcessMemory : virtual public KernelProcessBase, virtual public IProcessMemory
@@ -121,6 +123,7 @@ namespace pkn
         public virtual KernelProcessRegions,
         public virtual KernelProcessMemory,
         public virtual KernelProcessThread,
+        public virtual KernelExtraProcess,
         public virtual ProcessAddressTypeJudger
     {
     public:
@@ -132,6 +135,7 @@ namespace pkn
             KernelProcessRegions(pid),
             KernelProcessMemory(pid),
             KernelProcessThread(pid),
+            KernelExtraProcess(pid),
             ProcessAddressTypeJudger(*this)
         {
         }

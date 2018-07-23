@@ -11,6 +11,7 @@ namespace pkn
     public:
         virtual ~IBasicProcess() = default;
     public:
+        virtual pid_t pid() const PURE_VIRTUAL_FUNCTION_BODY;
         virtual erptr_t base() const PURE_VIRTUAL_FUNCTION_BODY;
         virtual bool alive() const PURE_VIRTUAL_FUNCTION_BODY;
     };
@@ -37,6 +38,7 @@ namespace pkn
         virtual ~IExtraProcess() = default;
     public:
         virtual erptr_t get_peb_address() const PURE_VIRTUAL_FUNCTION_BODY;
+        virtual erptr_t get_teb_address(pid_t tid) const PURE_VIRTUAL_FUNCTION_BODY;
     };
 
     class IProcessMemory

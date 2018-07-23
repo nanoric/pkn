@@ -86,7 +86,7 @@ namespace pkn
         int number_to_seek = -1,
         int offset = 0,
         int align = 8,
-        size_t seek_limit = 0,
+        size_t max_offset_to_seek = 0,
         class TestFunc>
         seek_result_t seek_regions(
             const MemoryRegions &regions,
@@ -108,11 +108,11 @@ namespace pkn
         Outputs results;
 
         // prepare input data for worker thread
-        constexpr size_t aligned_limit = (seek_limit + align - 1) / align * align;
+        constexpr size_t aligned_limit = (max_offset_to_seek + align - 1) / align * align;
         for (const auto region : regions)
         {
             // split data
-            if constexpr (seek_limit == 0)
+            if constexpr (max_offset_to_seek == 0)
             {
                 size_t size_per_thread = ((region.size - offset) / nthread + align - 1) / align * align;
                 for (size_t i = 0; i < nthread; i++)
@@ -156,7 +156,7 @@ namespace pkn
         int offset = 0,
         int align = 8,
         size_t minimun_region_size = 0x1000,
-        size_t seek_limit = 0,
+        size_t max_offset_to_seek = 0,
         class TestFunc,
         class RegionFilterFunc = DefaultRegionFilter>
         seek_result_t seek_memory(TestFunc test_func,
@@ -179,6 +179,6 @@ namespace pkn
             if (executable && region.executable())
                 regions_selected.push_back(region);
         }
-        return seek_regions<reserve_size, number_to_seek, offset, align, seek_limit>(regions_selected, test_func, nthread);
+        return seek_regions<reserve_size, number_to_seek, offset, align, max_offset_to_seek>(regions_selected, test_func, nthread);
     }
 }

@@ -9,6 +9,12 @@ namespace compile_time
     using hash_t = uint64_t;
     constexpr const hash_t __hash_basis = 14695981039346656037ULL;
     constexpr const hash_t __hash_prime = 281474976710677ULL;
+    /*
+    prime list :
+    281474976710677
+    281474976710717
+    281474976710731    
+    */
 
     /*
     I don't use a hash type, even though it provides more control for template

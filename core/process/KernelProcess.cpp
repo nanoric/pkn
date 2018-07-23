@@ -85,6 +85,13 @@ namespace pkn
         return driver().get_peb_address();
     }
 
+    erptr_t KernelExtraProcess::get_teb_address(pid_t tid) const
+    {
+        if (auto res = driver().get_teb_address(tid); res)
+            return  *res;
+        return rnullptr;
+    }
+
     bool KernelProcessMemory::allocate(size_t size, erptr_t*address, size_t *allocated_size) const
     {
         return driver().allocate_virtual_memory(pid(), rnullptr, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE, address, allocated_size);

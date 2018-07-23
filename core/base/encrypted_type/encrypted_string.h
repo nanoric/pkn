@@ -59,15 +59,15 @@ public:
     {
         return value();
     }
-    inline std::string to_string()
+    inline std::string to_string() const 
     {
         return std::string(this->begin(), this->end());
     }
-    inline std::wstring to_wstring()
+    inline std::wstring to_wstring() const 
     {
         return std::wstring(this->begin(), this->end());
     }
-    inline std::u32string to_u32string()
+    inline std::u32string to_u32string() const 
     {
         return std::u32string(this->begin(), this->end());
     }
