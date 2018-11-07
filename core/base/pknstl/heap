@@ -1,8 +1,0 @@
-﻿#pragma once
-
-#ifdef USE_STDSTL
-#include <heap>
-#else /*use EASTL*/
-#include <EASTL\heap.h>
-#endif
-

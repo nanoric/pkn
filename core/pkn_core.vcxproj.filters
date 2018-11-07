@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="base\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\basic_type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\noncopyable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\fs\fsutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\abstract\abstract.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\compile_time\const_hash.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\compile_time\hash.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\compile_time\hashed.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\compile_time\random.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\compile_time\utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\encrypted_type\encrypted_number.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\encrypted_type\encrypted_string.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\encrypted_type\encrypted_string_utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\encrypted_type\encrypted_string_view.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="driver_control\DriverBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="driver_control\DriverError.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="driver_control\DriverLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="driver_control\PknDriver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="remote_process\disable_windows_min_max_definetion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="remote_process\IAddressableProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="remote_process\IProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="remote_process\KernelProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="remote_process\KernelProcessUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="remote_process\MemoryRegion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="remote_process\ProcessUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="registry\Registry.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="base\base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="driver_control\DriverBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="driver_control\DriverLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="driver_control\PknDriver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="remote_process\IAddressableProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="remote_process\KernelProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wrap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="remote_process\ProcessUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="base\pknstl\algorithm" />
+    <None Include="base\pknstl\allocator" />
+    <None Include="base\pknstl\allocator_malloc" />
+    <None Include="base\pknstl\any" />
+    <None Include="base\pknstl\array" />
+    <None Include="base\pknstl\bitset" />
+    <None Include="base\pknstl\bitvector" />
+    <None Include="base\pknstl\chrono" />
+    <None Include="base\pknstl\core_allocator" />
+    <None Include="base\pknstl\core_allocator_adapter" />
+    <None Include="base\pknstl\deque" />
+    <None Include="base\pknstl\fixed_allocator" />
+    <None Include="base\pknstl\fixed_function" />
+    <None Include="base\pknstl\fixed_hash_map" />
+    <None Include="base\pknstl\fixed_hash_set" />
+    <None Include="base\pknstl\fixed_list" />
+    <None Include="base\pknstl\fixed_map" />
+    <None Include="base\pknstl\fixed_set" />
+    <None Include="base\pknstl\fixed_slist" />
+    <None Include="base\pknstl\fixed_string" />
+    <None Include="base\pknstl\fixed_substring" />
+    <None Include="base\pknstl\fixed_vector" />
+    <None Include="base\pknstl\functional" />
+    <None Include="base\pknstl\gen.ps1" />
+    <None Include="base\pknstl\hash_map" />
+    <None Include="base\pknstl\hash_set" />
+    <None Include="base\pknstl\heap" />
+    <None Include="base\pknstl\initializer_list" />
+    <None Include="base\pknstl\intrusive_hash_map" />
+    <None Include="base\pknstl\intrusive_hash_set" />
+    <None Include="base\pknstl\intrusive_list" />
+    <None Include="base\pknstl\intrusive_ptr" />
+    <None Include="base\pknstl\iterator" />
+    <None Include="base\pknstl\linked_array" />
+    <None Include="base\pknstl\linked_ptr" />
+    <None Include="base\pknstl\list" />
+    <None Include="base\pknstl\map" />
+    <None Include="base\pknstl\memory" />
+    <None Include="base\pknstl\meta" />
+    <None Include="base\pknstl\numeric" />
+    <None Include="base\pknstl\numeric_limits" />
+    <None Include="base\pknstl\optional" />
+    <None Include="base\pknstl\priority_queue" />
+    <None Include="base\pknstl\queue" />
+    <None Include="base\pknstl\random" />
+    <None Include="base\pknstl\ratio" />
+    <None Include="base\pknstl\safe_ptr" />
+    <None Include="base\pknstl\scoped_array" />
+    <None Include="base\pknstl\scoped_ptr" />
+    <None Include="base\pknstl\segmented_vector" />
+    <None Include="base\pknstl\set" />
+    <None Include="base\pknstl\shared_array" />
+    <None Include="base\pknstl\shared_ptr" />
+    <None Include="base\pknstl\slist" />
+    <None Include="base\pknstl\sort" />
+    <None Include="base\pknstl\span" />
+    <None Include="base\pknstl\stack" />
+    <None Include="base\pknstl\string" />
+    <None Include="base\pknstl\string_hash_map" />
+    <None Include="base\pknstl\string_map" />
+    <None Include="base\pknstl\string_view" />
+    <None Include="base\pknstl\tuple" />
+    <None Include="base\pknstl\type_traits" />
+    <None Include="base\pknstl\unique_ptr" />
+    <None Include="base\pknstl\unordered_map" />
+    <None Include="base\pknstl\unordered_set" />
+    <None Include="base\pknstl\utility" />
+    <None Include="base\pknstl\variant" />
+    <None Include="base\pknstl\vector" />
+    <None Include="base\pknstl\vector_map" />
+    <None Include="base\pknstl\vector_multimap" />
+    <None Include="base\pknstl\vector_multiset" />
+    <None Include="base\pknstl\vector_set" />
+    <None Include="base\pknstl\version" />
+    <None Include="base\pknstl\weak_ptr" />
+  </ItemGroup>
+</Project>

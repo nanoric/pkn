@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <filesystem>
 
 std::string error_to_string(DWORD last_error_code)
 {
@@ -26,78 +27,104 @@ std::string error_to_string(DWORD last_error_code)
     return message;
 }
 
-
-//装载NT驱动程序
-BOOL LoadNTDriver(const char * driver_name, const char * driver_path)
+bool DriverLoader::create_driver_service(const estr_t &eservice_name, const estr_t &driver_path)
 {
-    char driver_full_path[256];
-    //得到完整的驱动路径
-    GetFullPathNameA(driver_path, 256, driver_full_path, NULL);
+    auto service_name = eservice_name.to_wstring();
+    auto full_path = std::filesystem::absolute(driver_path.to<std::wstring>());
+    bool retv = false;
 
-    BOOL bRet = FALSE;
+    SC_HANDLE service_manager = nullptr;
+    SC_HANDLE service = nullptr;
 
-    SC_HANDLE service_manager = NULL;//SCM管理器的句柄
-    SC_HANDLE hServiceDDK = NULL;//NT驱动程序的服务句柄
+    service_manager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
 
-                                 //打开服务控制管理器
-    service_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-
-    if (service_manager == NULL)
+    if (service_manager == nullptr)
     {
-        //OpenSCManager失败
         //printf("OpenSCManager() Faild %d ! \n", GetLastError());
-        bRet = FALSE;
-        goto BeforeLeave;
+        retv = false;
+        goto _exit;
     }
     else
     {
-        ////OpenSCManager成功
         //printf("OpenSCManager() ok ! \n");
     }
 
-    //创建驱动所对应的服务
-    hServiceDDK = CreateServiceA(service_manager,
-        driver_name, //驱动程序的在注册表中的名字 
-        driver_name, // 注册表驱动程序的 DisplayName 值 
-        SERVICE_ALL_ACCESS, // 加载驱动程序的访问权限 
-        SERVICE_KERNEL_DRIVER,// 表示加载的服务是驱动程序 
-        SERVICE_DEMAND_START, // 注册表驱动程序的 Start 值 
-        SERVICE_ERROR_IGNORE, // 注册表驱动程序的 ErrorControl 值 
-        driver_full_path, // 注册表驱动程序的 ImagePath 值 
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL);
-
-    DWORD dwRtn;
-    //判断服务是否失败
-    if (hServiceDDK == NULL)
+    service = CreateServiceW(service_manager,
+        service_name.c_str(),
+        service_name.c_str(),
+        SERVICE_ALL_ACCESS,
+        SERVICE_KERNEL_DRIVER,
+        SERVICE_DEMAND_START,
+        SERVICE_ERROR_IGNORE,
+        full_path.wstring().c_str(),
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    );
+_exit:
+    if (service)
     {
-        dwRtn = GetLastError();
-        if (dwRtn != ERROR_IO_PENDING && dwRtn != ERROR_SERVICE_EXISTS)
+        CloseServiceHandle(service);
+    }
+    if (service_manager)
+    {
+        CloseServiceHandle(service_manager);
+    }
+    return service != nullptr;
+}
+
+bool DriverLoader::start_service(const estr_t &eservice_name)
+{
+    bool retv = false;
+    SC_HANDLE service_manager = nullptr;
+    SC_HANDLE service = nullptr;
+
+    auto service_name = eservice_name.to_wstring();
+
+    service_manager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
+    if (service_manager == nullptr)
+    {
+        //printf("OpenSCManager() Faild %d ! \n", GetLastError());
+        goto _exit;
+    }
+    else
+    {
+        //printf("OpenSCManager() ok ! \n");
+    }
+
+    service = OpenServiceW(service_manager, service_name.c_str(), SERVICE_ALL_ACCESS);
+    if (service == nullptr)
+    {
+        //printf("OpenService() Faild %d ! \n", GetLastError());
+        goto _exit;
+    }
+    else
+    {
+        //printf("OpenService() ok ! \n");
+    }
+
+    if (service == nullptr)
+    {
+        auto lastError = GetLastError();
+        if (lastError != ERROR_IO_PENDING && lastError != ERROR_SERVICE_EXISTS)
         {
-            //由于其他原因创建服务失败
-            auto err = GetLastError();
-            //printf("CrateService() faild %d: %s\n", err, error_to_string(err).c_str());
-            bRet = FALSE;
-            goto BeforeLeave;
+            //printf("CrateService() faild %d: %s\n", GetLastError(), error_to_string(GetLastError()).c_str());
+            retv = false;
+            goto _exit;
         }
         else
         {
-            //服务创建失败，是由于服务已经创立过
             //printf("CrateService() Faild Service is ERROR_IO_PENDING or ERROR_SERVICE_EXISTS! \n");
         }
 
-        // 驱动程序已经加载，只需要打开 
-        hServiceDDK = OpenServiceA(service_manager, driver_name, SERVICE_ALL_ACCESS);
-        if (hServiceDDK == NULL)
+        service = OpenServiceW(service_manager, service_name.c_str(), SERVICE_ALL_ACCESS);
+        if (service == nullptr)
         {
-            //如果打开服务也失败，则意味错误
-            dwRtn = GetLastError();
-            //printf("OpenService() Faild %d ! \n", dwRtn);
-            bRet = FALSE;
-            goto BeforeLeave;
+            //printf("OpenService() faild %d: %s\n", GetLastError(), error_to_string(GetLastError()).c_str());
+            retv = false;
+            goto _exit;
         }
         else
         {
@@ -109,87 +136,74 @@ BOOL LoadNTDriver(const char * driver_name, const char * driver_path)
         //printf("CrateService() ok ! \n");
     }
 
-    //开启此项服务
-    bRet = StartService(hServiceDDK, NULL, NULL);
-    if (!bRet)
+    retv = StartService(service, 0, nullptr);
+    if (!retv)
     {
-        DWORD dwRtn = GetLastError();
-        if (dwRtn != ERROR_IO_PENDING && dwRtn != ERROR_SERVICE_ALREADY_RUNNING)
+        auto lastError = GetLastError();
+        if (lastError != ERROR_IO_PENDING && lastError != ERROR_SERVICE_ALREADY_RUNNING)
         {
-            auto err = GetLastError();
-            //printf("StartService() faild %d: %s\n", err, error_to_string(err).c_str());
-            bRet = FALSE;
-            goto BeforeLeave;
+            //printf("StartService() faild %d: %s\n", GetLastError(), error_to_string(GetLastError()).c_str());
+            retv = false;
+            goto _exit;
+        }
+        else if (lastError == ERROR_IO_PENDING)
+        {
+            //printf("StartService() Faild ERROR_IO_PENDING ! \n");
+            retv = false;
+            goto _exit;
         }
         else
         {
-            if (dwRtn == ERROR_IO_PENDING)
-            {
-                //设备被挂住
-                //printf("StartService() Faild ERROR_IO_PENDING ! \n");
-                bRet = FALSE;
-                goto BeforeLeave;
-            }
-            else
-            {
-                //服务已经开启
-                //printf("StartService() Faild ERROR_SERVICE_ALREADY_RUNNING ! \n");
-                bRet = TRUE;
-                goto BeforeLeave;
-            }
+            //printf("StartService() Faild ERROR_SERVICE_ALREADY_RUNNING ! \n");
+            retv = true;
+            goto _exit;
         }
     }
-    bRet = TRUE;
-    //离开前关闭句柄
-BeforeLeave:
-    if (hServiceDDK)
+    retv = true;
+_exit:
+    if (service)
     {
-        CloseServiceHandle(hServiceDDK);
+        CloseServiceHandle(service);
     }
     if (service_manager)
     {
         CloseServiceHandle(service_manager);
     }
-    return bRet;
+    return retv;
 }
 
-//卸载驱动程序 
-BOOL UnloadNTDriver(char * service_name)
+bool DriverLoader::stop_service(const estr_t &eservice_name)
 {
-    BOOL bRet = FALSE;
-    SC_HANDLE hServiceMgr = NULL;//SCM管理器的句柄
-    SC_HANDLE hServiceDDK = NULL;//NT驱动程序的服务句柄
-    SERVICE_STATUS SvrSta;
-    //打开SCM管理器
-    hServiceMgr = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (hServiceMgr == NULL)
+    bool stop_succeed = false;
+    SC_HANDLE service_manager = nullptr;
+    SC_HANDLE service = nullptr;
+    SERVICE_STATUS status;
+
+    auto service_name = eservice_name.to_wstring();
+
+    service_manager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
+    if (service_manager == nullptr)
     {
-        //带开SCM管理器失败
         //printf("OpenSCManager() Faild %d ! \n", GetLastError());
-        bRet = FALSE;
-        goto BeforeLeave;
+        goto _exit;
     }
     else
     {
-        //带开SCM管理器失败成功
-        printf("OpenSCManager() ok ! \n");
+        //printf("OpenSCManager() ok ! \n");
     }
-    //打开驱动所对应的服务
-    hServiceDDK = OpenServiceA(hServiceMgr, service_name, SERVICE_ALL_ACCESS);
 
-    if (hServiceDDK == NULL)
+    service = OpenServiceW(service_manager, service_name.c_str(), SERVICE_ALL_ACCESS);
+    if (service == nullptr)
     {
-        //打开驱动所对应的服务失败
         //printf("OpenService() Faild %d ! \n", GetLastError());
-        bRet = FALSE;
-        goto BeforeLeave;
+        goto _exit;
     }
     else
     {
         //printf("OpenService() ok ! \n");
     }
-    //停止驱动程序，如果停止失败，只有重新启动才能，再动态加载。 
-    if (!ControlService(hServiceDDK, SERVICE_CONTROL_STOP, &SvrSta))
+
+    if (!ControlService(service, SERVICE_CONTROL_STOP, &status))
     {
         auto err = GetLastError();
         //printf("ControlService() faild %d: %s\n", err, error_to_string(err).c_str());
@@ -197,91 +211,68 @@ BOOL UnloadNTDriver(char * service_name)
     }
     else
     {
-        //打开驱动所对应的失败
+        stop_succeed = true;
         //printf("ControlService() ok !\n");
     }
-    //动态卸载驱动程序。 
-    if (!DeleteService(hServiceDDK))
+_exit:
+    if (service)
     {
-        //卸载失败
+        CloseServiceHandle(service);
+    }
+    if (service_manager)
+    {
+        CloseServiceHandle(service_manager);
+    }
+    return stop_succeed;
+}
+
+bool DriverLoader::delete_service(const estr_t &eservice_name)
+{
+    bool delete_succeed = false;
+    SC_HANDLE service_manager = nullptr;
+    SC_HANDLE service = nullptr;
+
+    auto service_name = eservice_name.to_wstring();
+
+    service_manager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
+    if (service_manager == nullptr)
+    {
+        //printf("OpenSCManager() Faild %d ! \n", GetLastError());
+        goto _exit;
+    }
+    else
+    {
+        //printf("OpenSCManager() ok ! \n");
+    }
+
+    service = OpenServiceW(service_manager, service_name.c_str(), SERVICE_ALL_ACCESS);
+    if (service == nullptr)
+    {
+        //printf("OpenService() Faild %d ! \n", GetLastError());
+        goto _exit;
+    }
+    else
+    {
+        //printf("OpenService() ok ! \n");
+    }
+
+    if (!DeleteService(service))
+    {
         //printf("DeleteSrevice() Faild %d !\n", GetLastError());
     }
     else
     {
-        //卸载成功
+        delete_succeed = true;
         //printf("DelServerDeleteSrevice() ok !\n");
     }
-    bRet = TRUE;
-BeforeLeave:
-    //离开前关闭打开的句柄
-    if (hServiceDDK)
+_exit:
+    if (service)
     {
-        CloseServiceHandle(hServiceDDK);
+        CloseServiceHandle(service);
     }
-    if (hServiceMgr)
+    if (service_manager)
     {
-        CloseServiceHandle(hServiceMgr);
+        CloseServiceHandle(service_manager);
     }
-    return bRet;
+    return delete_succeed;
 }
-
-void TestDriver()
-{
-    //测试驱动程序 
-    const char *filename = R"(\??\HelloDDK)";
-    printf("Testing Driver by CreateFile(%s)\n", filename);
-    HANDLE hDevice = CreateFileA(filename,
-        GENERIC_WRITE | GENERIC_READ,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        0,
-        NULL);
-    if (hDevice != INVALID_HANDLE_VALUE)
-    {
-        printf("Create Device ok ! \n");
-    }
-    else
-    {
-        auto err = GetLastError();
-        printf("Create Device faild %d: %s\n", err, error_to_string(err).c_str());
-    }
-    CloseHandle(hDevice);
-}
-//
-//int main(int argc, char* argv[])
-//{
-//    auto driver_name = argv[1];
-//    auto driver_path = argv[2];
-//    //加载驱动
-//    BOOL bRet = LoadNTDriver(driver_name, driver_path);
-//    if (!bRet)
-//    {
-//        printf("LoadNTDriver error\n");
-//        return 0;
-//    }
-//    //加载成功
-//
-//    //printf("press any to create device!\n");
-//    //getch();
-//
-//    TestDriver();
-//
-//    //这时候你可以通过注册表，或其他查看符号连接的软件验证。 
-//    printf("press any to unload the driver!\n");
-//    getch();
-//
-//    //卸载驱动
-//    bRet = UnloadNTDriver(driver_name);
-//    if (!bRet)
-//    {
-//        printf("UnloadNTDriver error\n");
-//        return 0;
-//    }
-//    else
-//    {
-//        printf("UnloadNTDriver success\n");
-//    }
-//
-//    return 0;
-//}

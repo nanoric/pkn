@@ -1,8 +1,0 @@
-﻿#pragma once
-
-#ifdef USE_STDSTL
-#include <allocator_malloc>
-#else /*use EASTL*/
-#include <EASTL\allocator_malloc.h>
-#endif
-

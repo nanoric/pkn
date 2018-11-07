@@ -1,8 +1,0 @@
-﻿#pragma once
-
-#ifdef USE_STDSTL
-#include <segmented_vector>
-#else /*use EASTL*/
-#include <EASTL\segmented_vector.h>
-#endif
-

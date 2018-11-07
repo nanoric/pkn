@@ -1,8 +1,0 @@
-﻿#pragma once
-
-#ifdef USE_STDSTL
-#include <linked_array>
-#else /*use EASTL*/
-#include <EASTL\linked_array.h>
-#endif
-

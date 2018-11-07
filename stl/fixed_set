@@ -1,0 +1,38 @@
+﻿
+#ifndef __pkn_stl_fixed_set
+#define __pkn_stl_fixed_set
+
+#pragma once
+
+#include "wrap/config.h"
+
+#if !defined(PKN_USE_STDSTL) && !defined(PKN_USE_EASTL)
+#define PKN_USE_EASTL
+#endif
+
+#ifdef PKN_USE_STDSTL
+
+#  include <fixed_set>
+#  ifndef stl
+#    define stl std
+#  endif
+//namespace stl
+//{
+//    using namespace std;
+//}
+
+#else /*use EASTL*/
+
+#  include "./EASTL/fixed_set.h"
+#  ifndef stl
+#    define stl eastl
+#  endif
+//namespace stl
+//{
+//    using namespace eastl;
+//}
+
+#endif
+
+
+#endif /*__pkn_stl_fixed_set*/

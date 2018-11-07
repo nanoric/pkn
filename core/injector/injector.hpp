@@ -7,10 +7,10 @@
 
 namespace pkn
 {
-    class instance_not_set_error :public std::exception
+    class instance_not_set_error :public std::logic_error
     {};
 
-    class instance_already_set_error : public std::exception
+    class instance_already_set_error : public std::logic_error
     {};
 
     template <class T>

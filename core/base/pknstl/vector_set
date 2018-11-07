@@ -1,8 +1,0 @@
-﻿#pragma once
-
-#ifdef USE_STDSTL
-#include <vector_set>
-#else /*use EASTL*/
-#include <EASTL\vector_set.h>
-#endif
-

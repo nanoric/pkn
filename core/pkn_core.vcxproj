@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{776F7139-3DD9-4589-BD25-1A355CD20C3F}</ProjectGuid>
+    <RootNamespace>pkncore</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <IncludePath>$(SolutionDir)source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <IncludePath>$(SolutionDir)source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <IncludePath>$(SolutionDir)source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <IncludePath>$(SolutionDir)source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>PKN_USE_EASTL;__STDC_LIB_EXT1__;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>PKN_USE_EASTL;__STDC_LIB_EXT1__;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>PKN_USE_EASTL;__STDC_LIB_EXT1__;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>PKN_USE_EASTL;__STDC_LIB_EXT1__;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="base\abstract\abstract.h" />
+    <ClInclude Include="base\basic_type.h" />
+    <ClInclude Include="base\compile_time\const_hash.hpp" />
+    <ClInclude Include="base\compile_time\hash.hpp" />
+    <ClInclude Include="base\compile_time\hashed.hpp" />
+    <ClInclude Include="base\compile_time\random.hpp" />
+    <ClInclude Include="base\compile_time\utils.hpp" />
+    <ClInclude Include="base\encrypted_type\encrypted_number.hpp" />
+    <ClInclude Include="base\encrypted_type\encrypted_string.hpp" />
+    <ClInclude Include="base\encrypted_type\encrypted_string_utils.hpp" />
+    <ClInclude Include="base\encrypted_type\encrypted_string_view.hpp" />
+    <ClInclude Include="base\fs\fsutils.h" />
+    <ClInclude Include="base\noncopyable.h" />
+    <ClInclude Include="base\types.h" />
+    <ClInclude Include="driver_control\DriverBase.h" />
+    <ClInclude Include="driver_control\DriverError.h" />
+    <ClInclude Include="driver_control\DriverLoader.h" />
+    <ClInclude Include="driver_control\PknDriver.h" />
+    <ClInclude Include="registry\Registry.hpp" />
+    <ClInclude Include="remote_process\disable_windows_min_max_definetion.h" />
+    <ClInclude Include="remote_process\IAddressableProcess.h" />
+    <ClInclude Include="remote_process\IProcess.h" />
+    <ClInclude Include="remote_process\KernelProcess.h" />
+    <ClInclude Include="remote_process\KernelProcessUtils.h" />
+    <ClInclude Include="remote_process\MemoryRegion.h" />
+    <ClInclude Include="remote_process\ProcessUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="base\base.cpp" />
+    <ClCompile Include="driver_control\DriverBase.cpp" />
+    <ClCompile Include="driver_control\DriverLoader.cpp" />
+    <ClCompile Include="driver_control\PknDriver.cpp" />
+    <ClCompile Include="remote_process\IAddressableProcess.cpp" />
+    <ClCompile Include="remote_process\KernelProcess.cpp" />
+    <ClCompile Include="remote_process\ProcessUtils.cpp" />
+    <ClCompile Include="wrap.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="base\pknstl\algorithm" />
+    <None Include="base\pknstl\allocator" />
+    <None Include="base\pknstl\allocator_malloc" />
+    <None Include="base\pknstl\any" />
+    <None Include="base\pknstl\array" />
+    <None Include="base\pknstl\bitset" />
+    <None Include="base\pknstl\bitvector" />
+    <None Include="base\pknstl\chrono" />
+    <None Include="base\pknstl\core_allocator" />
+    <None Include="base\pknstl\core_allocator_adapter" />
+    <None Include="base\pknstl\deque" />
+    <None Include="base\pknstl\fixed_allocator" />
+    <None Include="base\pknstl\fixed_function" />
+    <None Include="base\pknstl\fixed_hash_map" />
+    <None Include="base\pknstl\fixed_hash_set" />
+    <None Include="base\pknstl\fixed_list" />
+    <None Include="base\pknstl\fixed_map" />
+    <None Include="base\pknstl\fixed_set" />
+    <None Include="base\pknstl\fixed_slist" />
+    <None Include="base\pknstl\fixed_string" />
+    <None Include="base\pknstl\fixed_substring" />
+    <None Include="base\pknstl\fixed_vector" />
+    <None Include="base\pknstl\functional" />
+    <None Include="base\pknstl\gen.ps1" />
+    <None Include="base\pknstl\hash_map" />
+    <None Include="base\pknstl\hash_set" />
+    <None Include="base\pknstl\heap" />
+    <None Include="base\pknstl\initializer_list" />
+    <None Include="base\pknstl\intrusive_hash_map" />
+    <None Include="base\pknstl\intrusive_hash_set" />
+    <None Include="base\pknstl\intrusive_list" />
+    <None Include="base\pknstl\intrusive_ptr" />
+    <None Include="base\pknstl\iterator" />
+    <None Include="base\pknstl\linked_array" />
+    <None Include="base\pknstl\linked_ptr" />
+    <None Include="base\pknstl\list" />
+    <None Include="base\pknstl\map" />
+    <None Include="base\pknstl\memory" />
+    <None Include="base\pknstl\meta" />
+    <None Include="base\pknstl\numeric" />
+    <None Include="base\pknstl\numeric_limits" />
+    <None Include="base\pknstl\optional" />
+    <None Include="base\pknstl\priority_queue" />
+    <None Include="base\pknstl\queue" />
+    <None Include="base\pknstl\random" />
+    <None Include="base\pknstl\ratio" />
+    <None Include="base\pknstl\safe_ptr" />
+    <None Include="base\pknstl\scoped_array" />
+    <None Include="base\pknstl\scoped_ptr" />
+    <None Include="base\pknstl\segmented_vector" />
+    <None Include="base\pknstl\set" />
+    <None Include="base\pknstl\shared_array" />
+    <None Include="base\pknstl\shared_ptr" />
+    <None Include="base\pknstl\slist" />
+    <None Include="base\pknstl\sort" />
+    <None Include="base\pknstl\span" />
+    <None Include="base\pknstl\stack" />
+    <None Include="base\pknstl\string" />
+    <None Include="base\pknstl\string_hash_map" />
+    <None Include="base\pknstl\string_map" />
+    <None Include="base\pknstl\string_view" />
+    <None Include="base\pknstl\tuple" />
+    <None Include="base\pknstl\type_traits" />
+    <None Include="base\pknstl\unique_ptr" />
+    <None Include="base\pknstl\unordered_map" />
+    <None Include="base\pknstl\unordered_set" />
+    <None Include="base\pknstl\utility" />
+    <None Include="base\pknstl\variant" />
+    <None Include="base\pknstl\vector" />
+    <None Include="base\pknstl\vector_map" />
+    <None Include="base\pknstl\vector_multimap" />
+    <None Include="base\pknstl\vector_multiset" />
+    <None Include="base\pknstl\vector_set" />
+    <None Include="base\pknstl\version" />
+    <None Include="base\pknstl\weak_ptr" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

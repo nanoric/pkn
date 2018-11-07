@@ -1,8 +1,0 @@
-﻿#pragma once
-
-#ifdef USE_STDSTL
-#include <core_allocator>
-#else /*use EASTL*/
-#include <EASTL\core_allocator.h>
-#endif
-

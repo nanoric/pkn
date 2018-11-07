@@ -1,0 +1,38 @@
+﻿
+#ifndef __pkn_stl_allocator_malloc
+#define __pkn_stl_allocator_malloc
+
+#pragma once
+
+#include "wrap/config.h"
+
+#if !defined(PKN_USE_STDSTL) && !defined(PKN_USE_EASTL)
+#define PKN_USE_EASTL
+#endif
+
+#ifdef PKN_USE_STDSTL
+
+#  include <allocator_malloc>
+#  ifndef stl
+#    define stl std
+#  endif
+//namespace stl
+//{
+//    using namespace std;
+//}
+
+#else /*use EASTL*/
+
+#  include "./EASTL/allocator_malloc.h"
+#  ifndef stl
+#    define stl eastl
+#  endif
+//namespace stl
+//{
+//    using namespace eastl;
+//}
+
+#endif
+
+
+#endif /*__pkn_stl_allocator_malloc*/

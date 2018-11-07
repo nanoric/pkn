@@ -1,8 +1,0 @@
-﻿#pragma once
-
-#ifdef USE_STDSTL
-#include <unordered_set>
-#else /*use EASTL*/
-#include <EASTL\unordered_set.h>
-#endif
-

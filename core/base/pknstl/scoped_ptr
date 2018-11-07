@@ -1,8 +1,0 @@
-﻿#pragma once
-
-#ifdef USE_STDSTL
-#include <scoped_ptr>
-#else /*use EASTL*/
-#include <EASTL\scoped_ptr.h>
-#endif
-

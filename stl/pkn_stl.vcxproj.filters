@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="algorithm" />
+    <None Include="allocator" />
+    <None Include="allocator_malloc" />
+    <None Include="any" />
+    <None Include="array" />
+    <None Include="bitset" />
+    <None Include="bitvector" />
+    <None Include="chrono" />
+    <None Include="core_allocator" />
+    <None Include="core_allocator_adapter" />
+    <None Include="deque" />
+    <None Include="fixed_allocator" />
+    <None Include="fixed_function" />
+    <None Include="fixed_hash_map" />
+    <None Include="fixed_hash_set" />
+    <None Include="fixed_list" />
+    <None Include="fixed_map" />
+    <None Include="fixed_set" />
+    <None Include="fixed_slist" />
+    <None Include="fixed_string" />
+    <None Include="fixed_substring" />
+    <None Include="fixed_vector" />
+    <None Include="functional" />
+    <None Include="gen.ps1" />
+    <None Include="hash_map" />
+    <None Include="hash_set" />
+    <None Include="heap" />
+    <None Include="initializer_list" />
+    <None Include="intrusive_hash_map" />
+    <None Include="intrusive_hash_set" />
+    <None Include="intrusive_list" />
+    <None Include="intrusive_ptr" />
+    <None Include="iterator" />
+    <None Include="linked_array" />
+    <None Include="linked_ptr" />
+    <None Include="list" />
+    <None Include="map" />
+    <None Include="memory" />
+    <None Include="meta" />
+    <None Include="numeric" />
+    <None Include="numeric_limits" />
+    <None Include="optional" />
+    <None Include="priority_queue" />
+    <None Include="queue" />
+    <None Include="random" />
+    <None Include="ratio" />
+    <None Include="safe_ptr" />
+    <None Include="scoped_array" />
+    <None Include="scoped_ptr" />
+    <None Include="segmented_vector" />
+    <None Include="set" />
+    <None Include="shared_array" />
+    <None Include="shared_ptr" />
+    <None Include="slist" />
+    <None Include="sort" />
+    <None Include="span" />
+    <None Include="stack" />
+    <None Include="string" />
+    <None Include="string_hash_map" />
+    <None Include="string_map" />
+    <None Include="string_view" />
+    <None Include="tuple" />
+    <None Include="type_traits" />
+    <None Include="unique_ptr" />
+    <None Include="unordered_map" />
+    <None Include="unordered_set" />
+    <None Include="utility" />
+    <None Include="variant" />
+    <None Include="vector" />
+    <None Include="vector_map" />
+    <None Include="vector_multimap" />
+    <None Include="vector_multiset" />
+    <None Include="vector_set" />
+    <None Include="version" />
+    <None Include="weak_ptr" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="wrap\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="wrap\user_mode\all.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,38 @@
+﻿
+#ifndef __pkn_stl_fixed_slist
+#define __pkn_stl_fixed_slist
+
+#pragma once
+
+#include "wrap/config.h"
+
+#if !defined(PKN_USE_STDSTL) && !defined(PKN_USE_EASTL)
+#define PKN_USE_EASTL
+#endif
+
+#ifdef PKN_USE_STDSTL
+
+#  include <fixed_slist>
+#  ifndef stl
+#    define stl std
+#  endif
+//namespace stl
+//{
+//    using namespace std;
+//}
+
+#else /*use EASTL*/
+
+#  include "./EASTL/fixed_slist.h"
+#  ifndef stl
+#    define stl eastl
+#  endif
+//namespace stl
+//{
+//    using namespace eastl;
+//}
+
+#endif
+
+
+#endif /*__pkn_stl_fixed_slist*/

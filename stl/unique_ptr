@@ -1,0 +1,38 @@
+﻿
+#ifndef __pkn_stl_unique_ptr
+#define __pkn_stl_unique_ptr
+
+#pragma once
+
+#include "wrap/config.h"
+
+#if !defined(PKN_USE_STDSTL) && !defined(PKN_USE_EASTL)
+#define PKN_USE_EASTL
+#endif
+
+#ifdef PKN_USE_STDSTL
+
+#  include <unique_ptr>
+#  ifndef stl
+#    define stl std
+#  endif
+//namespace stl
+//{
+//    using namespace std;
+//}
+
+#else /*use EASTL*/
+
+#  include "./EASTL/unique_ptr.h"
+#  ifndef stl
+#    define stl eastl
+#  endif
+//namespace stl
+//{
+//    using namespace eastl;
+//}
+
+#endif
+
+
+#endif /*__pkn_stl_unique_ptr*/

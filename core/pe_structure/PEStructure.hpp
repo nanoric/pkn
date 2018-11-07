@@ -1,7 +1,7 @@
 #pragma once
 
 #include "WindowsStructure.h"
-#include <core/base/compile_time/hash.h>
+#include <pkn/core/base/compile_time/hash.hpp>
 #include <unordered_map>
 #include <vector>
 #include <functional>
@@ -110,39 +110,41 @@ namespace pkn
         }u;
         bool by_name;
         bool delayed;
-        uint64_t *imported_address;
+        uint64_t *imported_address; // this saves address of imported function, writing **real** entry of imported function into this address will just done this import.
     };
 
-    class PEStructureDetail : PEStructure
-    {
-    public:
-        using PEStructure::PEStructure;
-    public:
-        uint64_t va_to_fileoffset(uint64_t va)
-        {
-            auto psections = (PIMAGE_SECTION_HEADER)((uint8_t *)pe + pe->FileHeader.SizeOfOptionalHeader);
-            if (psections->VirtualAddress > va)
-                return va;
-            for (int i = 0; i < pe->FileHeader.NumberOfSections; i++)
-            {
-                auto vbase = psections[i].VirtualAddress;
-                auto vsize = psections[i].Misc.VirtualSize;
-                auto raw_base = psections[i].PointerToRawData;
-                auto raw_size = psections[i].SizeOfRawData;
-                if (va >= vbase && va <= vbase + vsize)
-                {
-                    return va - vbase + raw_base;
-                }
-            }
-            return 0;
-        }
-        uint64_t image_size()
-        {
-            return pe->OptionalHeader.SizeOfImage;
-        }
-        PIMAGE_NT_HEADERS32 pe = (PIMAGE_NT_HEADERS32)PEStructure::pe;
-    };
+    //class PEStructureDetail : PEStructure
+    //{
+    //public:
+    //    using PEStructure::PEStructure;
+    //public:
+    //    uint64_t va_to_fileoffset(uint64_t va)
+    //    {
+    //        auto psections = (PIMAGE_SECTION_HEADER)((uint8_t *)pe + pe->FileHeader.SizeOfOptionalHeader);
+    //        if (psections->VirtualAddress > va)
+    //            return va;
+    //        for (int i = 0; i < pe->FileHeader.NumberOfSections; i++)
+    //        {
+    //            auto vbase = psections[i].VirtualAddress;
+    //            auto vsize = psections[i].Misc.VirtualSize;
+    //            auto raw_base = psections[i].PointerToRawData;
+    //            auto raw_size = psections[i].SizeOfRawData;
+    //            if (va >= vbase && va <= vbase + vsize)
+    //            {
+    //                return va - vbase + raw_base;
+    //            }
+    //        }
+    //        return 0;
+    //    }
+    //    uint64_t image_size()
+    //    {
+    //        return pe->OptionalHeader.SizeOfImage;
+    //    }
+    //    PIMAGE_NT_HEADERS32 pe = (PIMAGE_NT_HEADERS32)PEStructure::pe;
+    //};
 
+    // used to parse PE File
+    // before call any other functions, call parse() first.
     class RawPEStructure64 : PEStructure
     {
     public:
@@ -169,6 +171,10 @@ namespace pkn
         uint64_t image_size()
         {
             return pe->OptionalHeader.SizeOfImage;
+        }
+        uint64_t entry_point_rva()
+        {
+            return pe->OptionalHeader.AddressOfEntryPoint;
         }
         void parse()
         {
@@ -219,7 +225,7 @@ namespace pkn
                 for (auto const &data : p.second)
                 {
                     if (data.by_name)
-                        * data.imported_address = resolve(dll, data.u.by_name.name);
+                        *data.imported_address = resolve(dll, data.u.by_name.name);
                     else
                         *data.imported_address = resolve(dll, (char *)data.u.by_ordinal.ordinal);
                     if (*data.imported_address == 0)
@@ -273,10 +279,8 @@ namespace pkn
             }
             return success;
         }
-        uint64_t entry_point_rva()
-        {
-            return pe->OptionalHeader.AddressOfEntryPoint;
-        }
+
+        // load to an memory as an image. vbase must be a writable memory region larger than image_size()
         void load_as_image(void *vbase)
         {
             auto rbase = base;
@@ -296,6 +300,8 @@ namespace pkn
         std::vector<IMAGE_SECTION_HEADER> sections;
         PIMAGE_NT_HEADERS64 pe = (PIMAGE_NT_HEADERS64)PEStructure::pe;
     };
+
+    // used to parse a PE Image(Sections are loaded into memory)
     class ImagePEStructure64 : public RawPEStructure64
     {
     public:

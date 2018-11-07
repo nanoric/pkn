@@ -1,7 +1,0 @@
-#pragma once
-
-#ifdef USE_STDSTL
-#include <string_view>
-#else /*use EASTL*/
-#include <EASTL\string_view.h>
-#endif

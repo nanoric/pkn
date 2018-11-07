@@ -1,8 +1,0 @@
-﻿#pragma once
-
-#ifdef USE_STDSTL
-#include <queue>
-#else /*use EASTL*/
-#include <EASTL\queue.h>
-#endif
-
