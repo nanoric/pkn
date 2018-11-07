@@ -24,7 +24,8 @@ using pid_t = euint64_t;
 using estr_t = basic_encrypted_string<wchar_t>;
 using estrv_t = basic_encrypted_string_view<wchar_t>;
 
-#define e(string_literal) L#string_literal/*this marco should not be used for user*/
+#define __e(string_literal) L##string_literal/*this marco should not be used for user*/
+#define e(string_literal) __e(string_literal)/*this marco should not be used for user*/
 
 #define make_hash(string_literal) (const_hash(compile_time::hash(e(string_literal))))
 #define make_estr(string_literal) (make_const_encrypted_string(e(string_literal)))

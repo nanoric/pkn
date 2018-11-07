@@ -13,7 +13,7 @@ function generate_include_files()
 #include "wrap/config.h"
 
 #if !defined(PKN_USE_STDSTL) && !defined(PKN_USE_EASTL)
-#define PKN_USE_EASTL
+#define PKN_USE_STDSTL
 #endif
 
 #ifdef PKN_USE_STDSTL

@@ -17,7 +17,7 @@ std::string error_to_string(DWORD last_error_code)
 
     LPSTR messageBuffer = nullptr;
     size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+                                 NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
     std::string message(messageBuffer, size);
 
@@ -50,19 +50,44 @@ bool DriverLoader::create_driver_service(const estr_t &eservice_name, const estr
     }
 
     service = CreateServiceW(service_manager,
-        service_name.c_str(),
-        service_name.c_str(),
-        SERVICE_ALL_ACCESS,
-        SERVICE_KERNEL_DRIVER,
-        SERVICE_DEMAND_START,
-        SERVICE_ERROR_IGNORE,
-        full_path.wstring().c_str(),
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr
+                             service_name.c_str(),
+                             service_name.c_str(),
+                             SERVICE_ALL_ACCESS,
+                             SERVICE_KERNEL_DRIVER,
+                             SERVICE_DEMAND_START,
+                             SERVICE_ERROR_IGNORE,
+                             full_path.wstring().c_str(),
+                             nullptr,
+                             nullptr,
+                             nullptr,
+                             nullptr,
+                             nullptr
     );
+    if (nullptr == service && GetLastError() == ERROR_SERVICE_EXISTS)
+    {
+        service = OpenServiceW(service_manager,
+                               service_name.c_str(),
+                               SERVICE_ALL_ACCESS);
+        if (nullptr != service)
+        {
+            retv = ChangeServiceConfigW(service,
+                                        SERVICE_KERNEL_DRIVER,
+                                        SERVICE_DEMAND_START,
+                                        SERVICE_ERROR_IGNORE,
+                                        full_path.wstring().c_str(),
+                                        nullptr,
+                                        nullptr,
+                                        nullptr,
+                                        nullptr,
+                                        nullptr,
+                                        nullptr
+            );
+        }
+    }
+    else
+    {
+        retv = true;
+    }
 _exit:
     if (service)
     {
@@ -72,7 +97,7 @@ _exit:
     {
         CloseServiceHandle(service_manager);
     }
-    return service != nullptr;
+    return retv;
 }
 
 bool DriverLoader::start_service(const estr_t &eservice_name)
@@ -275,4 +300,39 @@ _exit:
         CloseServiceHandle(service_manager);
     }
     return delete_succeed;
+}
+
+bool DriverLoader::enable_privilege(const char *name)
+{
+    TOKEN_PRIVILEGES privilege;
+    HANDLE tokenHandle;
+
+    privilege.PrivilegeCount = 1;
+    privilege.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+    if (!LookupPrivilegeValueA(NULL, name,
+                               &privilege.Privileges[0].Luid))
+        return false;
+
+    if (!OpenProcessToken(GetCurrentProcess(),
+                          TOKEN_ADJUST_PRIVILEGES, &tokenHandle))
+        return false;
+
+    if (!AdjustTokenPrivileges(tokenHandle,
+                               false,
+                               &privilege,
+                               sizeof(privilege),
+                               nullptr,
+                               nullptr))
+    {
+        CloseHandle(tokenHandle);
+        return false;
+    }
+
+    CloseHandle(tokenHandle);
+    return true;
+}
+
+bool DriverLoader::enable_load_driver_privilege()
+{
+    return enable_privilege(SE_LOAD_DRIVER_NAME);
 }

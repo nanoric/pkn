@@ -11,8 +11,7 @@ class DriverLoader
 public:
     DriverLoader(const estr_t &service_name, const estr_t &driver_path)
         :service_name(service_name), driver_path(driver_path)
-    {
-    }
+    {}
     ~DriverLoader()
     {
         stop();
@@ -27,10 +26,12 @@ public:
     }
     bool load()
     {
-        create();
-        if (!loaded)
+        if (create())
         {
-            loaded = start_service(this->service_name);
+            if (!loaded)
+            {
+                loaded = start_service(this->service_name);
+            }
         }
         return loaded;
     }
@@ -53,7 +54,7 @@ public:
     }
     inline UserRegistry registry()
     {
-        estr_t path = make_estr(LR"(\Registry\Machine\SYSTEM\CurrentControlSet\Services\)");
+        estr_t path = make_estr(R"(\Registry\Machine\SYSTEM\CurrentControlSet\Services\)");
         path += service_name;
         return UserRegistry(path);
     }
@@ -62,6 +63,8 @@ public:
     static bool start_service(const estr_t &eservice_name);
     static bool stop_service(const estr_t &eservice_name);
     static bool delete_service(const estr_t &eservice_name);
+    static bool enable_privilege(const char *name);
+    static bool enable_load_driver_privilege();
 private:
     bool created = false;
     bool loaded = false;

@@ -273,7 +273,8 @@ namespace eastl
 	template <typename T>
 	inline T* CharStringUninitializedCopy(const T* pSource, const T* pSourceEnd, T* pDestination)
 	{
-		memmove(pDestination, pSource, (size_t)(pSourceEnd - pSource) * sizeof(T));
+        // todo: restore
+		//memmove(pDestination, pSource, (size_t)(pSourceEnd - pSource) * sizeof(T));
         //while (pSource < pSourceEnd)
         //{
         //    *pDestination++ = *pSource;
@@ -453,6 +454,7 @@ namespace eastl
     template <class T>
 	inline T* CharStringUninitializedFillN(T* pDestination, size_t n, const T c)
 	{
+        // todo: restore
 		T* pDest = pDestination;
 		const T* const pEnd = pDestination + n;
         while (pDest< pEnd)
@@ -501,6 +503,7 @@ namespace eastl
 } // namespace eastl
 
 #endif // EASTL_CHAR_TRAITS_H
+
 
 
 

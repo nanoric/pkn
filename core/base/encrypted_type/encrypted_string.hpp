@@ -30,12 +30,10 @@ public:
 
     template <class AnyStringType>
     inline basic_encrypted_string(const AnyStringType &rhs)
+        //: internal_t(rhs.begin(), rhs.end())
     {
-        //this->reserve(100);
-        this->resize(100, 0); // error in kernel mode
-
-        //this->reserve(rhs.size());
-        //stl::copy(rhs.begin(), rhs.end(), stl::back_inserter(*this));
+        this->reserve(rhs.size());
+        stl::copy(rhs.begin(), rhs.end(), stl::back_inserter(*this));
     }
 
     //template <class AnyType>
@@ -54,6 +52,8 @@ public:
     template <class AnyCharType>
     inline basic_encrypted_string(const AnyCharType *rhs, size_t size=0)
     {
+        if (size == 0)
+            size = stl::basic_string<AnyCharType>(rhs).size();
         this->reserve(size);
         stl::copy(rhs, rhs+size, stl::back_insert_iterator(*this));
     }

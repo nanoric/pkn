@@ -8,6 +8,7 @@
 #include "../base/types.h"
 #include "../base/noncopyable.h"
 #include "DriverBase.h"
+#include <kernel/names.h>
 
 
 namespace pkn

@@ -1,5 +1,6 @@
 #include "IAddressableProcess.h"
 #include "..\base\fs\fsutils.h"
+#include "../../stl/algorithm"
 
 namespace pkn
 {

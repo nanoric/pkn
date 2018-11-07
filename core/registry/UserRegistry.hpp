@@ -6,16 +6,19 @@
 class UserRegistry : public Registry
 {
 public:
-    using Registry::Registry;
+    UserRegistry(const estr_t &registry_path)
+        : Registry(registry_path, &UserRegistry::zwClose)
+    {}
+    virtual ~UserRegistry() override = default;
 protected:
     // Inherited via Registry
 
-    virtual NTSTATUS UserRegistry::ZwOpenKey(PHANDLE KeyHandle,
+    virtual NTSTATUS zwOpenKey(PHANDLE KeyHandle,
                                      uint32_t DesiredAccess,
                                      POBJECT_ATTRIBUTES ObjectAttributes
     ) override
     {
-        using fZwOpenKey = NTSTATUS(*)(PHANDLE KeyHandle,
+        using fZwOpenKey = NTSTATUS(NTAPI*)(PHANDLE KeyHandle,
                                        uint32_t DesiredAccess,
                                        POBJECT_ATTRIBUTES ObjectAttributes
                                        );
@@ -25,7 +28,7 @@ protected:
                          ObjectAttributes);
     }
 
-    virtual NTSTATUS UserRegistry::ZwQueryValueKey(HANDLE KeyHandle,
+    virtual NTSTATUS zwQueryValueKey(HANDLE KeyHandle,
                                            PUNICODE_STRING ValueName,
                                            KEY_VALUE_INFORMATION_CLASS KeyValueInformationClass,
                                            PVOID KeyValueInformation,
@@ -33,7 +36,7 @@ protected:
                                            PULONG ResultLength
     )
     {
-        using fZwQueryValueKey = NTSTATUS(*)(HANDLE KeyHandle,
+        using fZwQueryValueKey = NTSTATUS(NTAPI*)(HANDLE KeyHandle,
                                              PUNICODE_STRING ValueName,
                                              KEY_VALUE_INFORMATION_CLASS KeyValueInformationClass,
                                              PVOID KeyValueInformation,
@@ -48,7 +51,7 @@ protected:
                                ResultLength);
     }
 
-    virtual NTSTATUS Registry::ZwSetValueKey(HANDLE KeyHandle,
+    virtual NTSTATUS zwSetValueKey(HANDLE KeyHandle,
                                      PUNICODE_STRING ValueName,
                                      ULONG TitleIndex,
                                      ULONG Type,
@@ -56,7 +59,7 @@ protected:
                                      ULONG DataSize
     ) override
     {
-        using fZwSetValueKey = NTSTATUS(*)(HANDLE KeyHandle,
+        using fZwSetValueKey = NTSTATUS(NTAPI*)(HANDLE KeyHandle,
                                            PUNICODE_STRING ValueName,
                                            ULONG TitleIndex,
                                            ULONG Type,
@@ -72,9 +75,9 @@ protected:
         );
     }
 
-    virtual NTSTATUS UserRegistry::ZwClose(HANDLE Handle) override
+    static NTSTATUS zwClose(HANDLE Handle)
     {
-        using fZwClose = NTSTATUS(*)(HANDLE Handle);
+        using fZwClose = NTSTATUS(NTAPI*)(HANDLE Handle);
         static fZwClose ZwClose = (fZwClose)GetProcAddress(LoadLibraryA("NtDll"), "ZwClose");
         return ZwClose(Handle);
     }

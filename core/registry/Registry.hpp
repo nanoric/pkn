@@ -28,42 +28,47 @@ typedef struct _KEY_VALUE_PARTIAL_INFORMATION
 #define STATUS_BUFFER_OVERFLOW           ((NTSTATUS)0x80000005L)
 #endif
 
+#else
 #endif
+#include <pkn/core/marcos/debug_print.h>
 
 #include <pkn/core/base/types.h>
 #include <pkn/stl/optional>
 #include <pkn/stl/unique_ptr>
+#include <pkn/stl/functional>
 
 class Registry
 {
 public:
-    Registry(const estr_t &registry_path) : path(registry_path)
+    using ZwCloseType = NTSTATUS(NTAPI*)(HANDLE);
+public:
+    Registry(const estr_t &registry_path, ZwCloseType zwClose)
+        : path(registry_path), zwClose(zwClose)
+    {}
+    virtual ~Registry()
     {
-    }
-    ~Registry()
-    {
-        if (is_opened())
-            close();
+        close();
     }
 public:
     bool open()
     {
         UNICODE_STRING upath;
-        oa.Attributes = OBJ_KERNEL_HANDLE;
-        oa.Length = sizeof(oa);
-        oa.ObjectName = &upath;
-        oa.RootDirectory = nullptr;
-        oa.SecurityDescriptor = nullptr;
-        oa.SecurityQualityOfService = nullptr;
-        RtlInitUnicodeString(oa.ObjectName, this->path.to_wstring().c_str());
+        OBJECT_ATTRIBUTES oa;
+        InitializeObjectAttributes(&oa, &upath, OBJ_KERNEL_HANDLE, NULL, NULL);
+        auto path_ws = this->path.to_wstring();
+        RtlInitUnicodeString(oa.ObjectName, path_ws.c_str());
 
-        auto status = this->ZwOpenKey(&handle, KEY_READ, &oa);
+        auto status = this->zwOpenKey(&handle, KEY_QUERY_VALUE | KEY_SET_VALUE | KEY_CREATE_SUB_KEY, &oa);
+        DebugPrint("ZwOpenKey handle:(%llx)", handle);
         return NT_SUCCESS(status);
     }
     void close()
     {
-        this->ZwClose(handle);
-        handle = (HANDLE)-1;
+        if (is_opened())
+        {
+            this->zwClose(handle);
+            handle = (HANDLE)-1;
+        }
     }
     inline bool is_opened()const { return handle != nullptr && handle != (void *)-1; }
 public:
@@ -91,7 +96,7 @@ public:
         UNICODE_STRING s;
         RtlInitUnicodeString(&s, wkey.c_str());
         auto ws = value.to_wstring();
-        auto status = this->ZwSetValueKey(handle, &s, 0, REG_SZ, (void *)ws.c_str(), (ULONG)(ws.size() + 1) * sizeof(estr_t::basic_t));
+        auto status = this->zwSetValueKey(handle, &s, 0, REG_SZ, (void *)ws.c_str(), (ULONG)(ws.size() + 1) * sizeof(estr_t::basic_t));
         if (NT_SUCCESS(status))
         {
             return true;
@@ -112,13 +117,13 @@ public:
                 return stl::nullopt;
         auto wkey = key_name.to_wstring();
         UNICODE_STRING s;
-        RtlInitUnicodeString(&s,wkey.c_str());
+        RtlInitUnicodeString(&s, wkey.c_str());
         ULONG size = 0;
-        auto status = this->ZwQueryValueKey(handle, &s, KeyValuePartialInformation, nullptr, 0, &size);
+        auto status = this->zwQueryValueKey(handle, &s, KeyValuePartialInformation, nullptr, 0, &size);
         if (status == STATUS_BUFFER_TOO_SMALL || status == STATUS_BUFFER_OVERFLOW)
         {
             stl::unique_ptr<KEY_VALUE_PARTIAL_INFORMATION> buf(reinterpret_cast<KEY_VALUE_PARTIAL_INFORMATION *>(new char[size]));
-            status = this->ZwQueryValueKey(handle, &s, KeyValuePartialInformation, buf.get(), size, &size);
+            status = this->zwQueryValueKey(handle, &s, KeyValuePartialInformation, buf.get(), size, &size);
             if (NT_SUCCESS(status))
             {
                 return estr_t((const wchar_t *)buf->Data, (size_t)buf->DataLength / sizeof(wchar_t));
@@ -127,12 +132,12 @@ public:
         return stl::nullopt;
     }
 protected:
-    virtual NTSTATUS ZwOpenKey(
+    virtual NTSTATUS zwOpenKey(
         PHANDLE            KeyHandle,
         uint32_t        DesiredAccess,
         POBJECT_ATTRIBUTES ObjectAttributes
     ) = 0;
-    virtual NTSTATUS ZwQueryValueKey(
+    virtual NTSTATUS zwQueryValueKey(
         HANDLE                      KeyHandle,
         PUNICODE_STRING             ValueName,
         KEY_VALUE_INFORMATION_CLASS KeyValueInformationClass,
@@ -140,7 +145,7 @@ protected:
         ULONG                       Length,
         PULONG                      ResultLength
     ) = 0;
-    virtual NTSTATUS ZwSetValueKey(
+    virtual NTSTATUS zwSetValueKey(
         HANDLE          KeyHandle,
         PUNICODE_STRING ValueName,
         ULONG           TitleIndex,
@@ -148,11 +153,9 @@ protected:
         PVOID           Data,
         ULONG           DataSize
     ) = 0;
-    virtual NTSTATUS ZwClose(
-        HANDLE Handle
-    ) = 0;
 private:
     HANDLE handle = (void *)-1;
     estr_t path;
-    OBJECT_ATTRIBUTES oa;
+    ZwCloseType zwClose; // since virtual method can't be call at destructor, use function pointer instead
+    //stl::wstring path_ws;
 };
