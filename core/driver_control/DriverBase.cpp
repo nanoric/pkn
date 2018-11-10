@@ -41,8 +41,10 @@ namespace pkn
     {
         if (is_opened())
         {
-            CloseHandle(_handle);
-            _handle = INVALID_HANDLE_VALUE;
+            auto retv = CloseHandle(_handle);
+            if (!retv)
+                printf("failed to close handle %llx", (uint64_t)_handle);
+            _handle = nullptr;
         }
     }
 

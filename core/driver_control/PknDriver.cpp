@@ -16,8 +16,7 @@
 namespace pkn
 {
 PknDriver::PknDriver()
-{
-}
+{}
 
 void PknDriver::xor_memory(void *address, size_t size, uint64_t xor_key) noexcept
 {
@@ -89,17 +88,46 @@ bool PknDriver::write_process_memory(pid_t pid, erptr_t remote_address, size_t s
     return ioctl(IOCTL_PLAYERKNOWNS_WRITE_PROCESS_MEMORY, &inp, sizeof(inp), nullptr, nullptr);
 }
 
-bool PknDriver::read_system_memory(erptr_t remote_address, size_t size, void *buffer) const noexcept
+stl::optional<uint64_t> PknDriver::read_system_memory(erptr_t remote_address, size_t size, void *buffer) const noexcept
 {
-    return read_process_memory(GetCurrentProcessId(), remote_address, size, buffer);
+    ReadSystemMemoryInput inp;
+    ReadSystemMemoryOutput oup;
+    uint32_t out_size = sizeof(oup);
+    inp.xor_val = xor_key;
+    inp.addresstoread = remote_address;
+    inp.bytestoread = size;
+    inp.buffer = (uint64_t)buffer;
+    //inp.xor_val = 0;
+    EncryptInputByXor();
+    if (ioctl(IOCTL_PLAYERKNOWNS_READ_SYSTEM_MEMORY, &inp, sizeof(inp), &oup, &out_size))
+    {
+        xor_memory(buffer, size, xor_key);
+        DecryptOutputByXor();
+        return oup.bytesread;
+    }
+    return stl::nullopt;
 }
 
-bool PknDriver::write_system_memory(erptr_t remote_address, size_t size, const void *data) const noexcept
+stl::optional<uint64_t> PknDriver::write_system_memory(erptr_t remote_address, size_t size, const void *data) const noexcept
 {
-    return write_process_memory(GetCurrentProcessId(), remote_address, size, data);
+    WriteSystemMemoryInput inp;
+    WriteSystemMemoryOutput oup;
+    uint32_t out_size = sizeof(oup);
+    inp.xor_val = xor_key;
+    inp.addresstowrite = remote_address;
+    inp.bytestowrite = size;
+    inp.buffer = (uint64_t)data;
+    EncryptInputByXor();
+    // !!!!!!note: buffer for write process memory is not xor protected!!!!!
+    if (ioctl(IOCTL_PLAYERKNOWNS_WRITE_SYSTEM_MEMORY, &inp, sizeof(inp), &oup, &out_size))
+    {
+        DecryptOutputByXor();
+        return oup.byteswritten;
+    }
+    return stl::nullopt;
 }
 
-stl::optional<erptr_t> PknDriver::allocate_nonpaged_memory(size_t size)
+stl::optional<erptr_t> PknDriver::allocate_nonpaged_memory(size_t size) const noexcept
 {
     AllocateNonpagedMemoryInput inp;
     inp.xor_val = xor_key;
@@ -114,6 +142,11 @@ stl::optional<erptr_t> PknDriver::allocate_nonpaged_memory(size_t size)
         return erptr_t(oup.address);
     }
     return stl::nullopt;
+}
+
+bool PknDriver::free_nonpaged_memory(erptr_t ptr) const noexcept
+{
+    return false;
 }
 
 bool PknDriver::force_write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data) const noexcept
@@ -358,14 +391,14 @@ stl::optional<erptr_t> PknDriver::get_teb_address(uint64_t tid)
 }
 
 bool PknDriver::create_user_thread(pid_t pid,
-    _In_opt_ PSECURITY_DESCRIPTOR ThreadSecurityDescriptor,
-    _In_ bool CreateSuspended,
-    _In_opt_ uint64_t MaximumStackSize,
-    _In_ uint64_t CommittedStackSize,
-    _In_ uint64_t StartAddress,
-    _In_opt_ uint64_t Parameter,
-    _Out_opt_ pid_t *out_pid,
-    _Out_opt_ pid_t *tid
+                                   _In_opt_ PSECURITY_DESCRIPTOR ThreadSecurityDescriptor,
+                                   _In_ bool CreateSuspended,
+                                   _In_opt_ uint64_t MaximumStackSize,
+                                   _In_ uint64_t CommittedStackSize,
+                                   _In_ uint64_t StartAddress,
+                                   _In_opt_ uint64_t Parameter,
+                                   _Out_opt_ pid_t *out_pid,
+                                   _Out_opt_ pid_t *tid
 ) const noexcept
 {
     CreateUserThreadInput inp = { xor_key,
@@ -397,7 +430,7 @@ bool PknDriver::create_user_thread(pid_t pid,
     return false;
 }
 
-bool PknDriver::allocate_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, uint32_t protect, erptr_t *allocated_base, size_t *allocated_size)
+bool PknDriver::allocate_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, uint32_t protect, erptr_t *allocated_base, size_t *allocated_size) const noexcept
 {
     AllocateVirtualMemoryInput inp = { xor_key,
         pid,
@@ -421,7 +454,7 @@ bool PknDriver::allocate_virtual_memory(pid_t pid, erptr_t address, size_t size,
 }
 
 
-bool PknDriver::free_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, erptr_t *freed_base /*= nullptr*/, size_t *freed_size /*= nullptr*/)
+bool PknDriver::free_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, erptr_t *freed_base /*= nullptr*/, size_t *freed_size /*= nullptr*/) const noexcept
 {
     FreeVirtualMemoryInput inp = { xor_key,
         pid,
@@ -442,7 +475,7 @@ bool PknDriver::free_virtual_memory(pid_t pid, erptr_t address, size_t size, uin
     return false;
 }
 
-bool PknDriver::protect_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t protect, erptr_t *protected_base /*= nullptr*/, size_t *protected_size /*= nullptr*/, uint32_t *old_protect /*= nullptr*/)
+bool PknDriver::protect_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t protect, erptr_t *protected_base /*= nullptr*/, size_t *protected_size /*= nullptr*/, uint32_t *old_protect /*= nullptr*/) const noexcept
 {
     ProtectVirtualMemoryInput inp = { xor_key,
         pid,
@@ -464,16 +497,18 @@ bool PknDriver::protect_virtual_memory(pid_t pid, erptr_t address, size_t size, 
     return false;
 }
 
-stl::optional<uint64_t> PknDriver::delete_unloaded_drivers(erptr_t rva_mm_unloaded_drivers, erptr_t rva_mm_last_unloaded_driver, const wchar_t *name_pattern, size_t string_size)
+stl::optional<uint64_t> PknDriver::delete_unloaded_drivers(erptr_t rva_mm_unloaded_drivers, erptr_t rva_mm_last_unloaded_driver, estr_t name_pattern) const noexcept
 {
-    DeleteUnloadedDriversInput inp = { xor_key,
-        (UINT64)rva_mm_unloaded_drivers,
-        (UINT64)rva_mm_last_unloaded_driver,
-        string_size,
-    };
-    if (string_size > sizeof(inp.name))
-        string_size = sizeof(inp.name) - sizeof(*inp.name);
-    memcpy(&inp.name, name_pattern, string_size);
+    DeleteUnloadedDriversInput inp;
+    inp.xor_val = xor_key;
+    inp.pMmUnloadedDrivers = (UINT64)rva_mm_unloaded_drivers;
+    inp.pMmLastUnloadedDriver = (UINT64)rva_mm_last_unloaded_driver;
+    if (name_pattern.size() >= sizeof(inp.name) / sizeof(*inp.name))
+        return stl::nullopt;
+    //if (name_pattern.size() > sizeof(inp.name))
+    //    name_pattern.resize(sizeof(inp.name) - sizeof(*inp.name));
+    memcpy(&inp.name, name_pattern.to_wstring().c_str(), name_pattern.size() * sizeof(name_pattern[0]));
+    inp.name[name_pattern.size()] = 0;
 
     DeleteUnloadedDriversOutput oup;
     uint32_t out_size = sizeof(oup);
@@ -485,7 +520,7 @@ stl::optional<uint64_t> PknDriver::delete_unloaded_drivers(erptr_t rva_mm_unload
     return stl::nullopt;
 }
 
-bool PknDriver::run_driver_entry(erptr_t entry, uint64_t arg1, uint64_t arg2)
+stl::optional<uint64_t> PknDriver::run_driver_entry(erptr_t entry, uint64_t arg1, uint64_t arg2) const noexcept
 {
     RunDriverEntryInput inp;
     inp.xor_val = xor_key;
@@ -498,10 +533,39 @@ bool PknDriver::run_driver_entry(erptr_t entry, uint64_t arg1, uint64_t arg2)
     EncryptInputByXor();
     if (ioctl(IOCTL_PLAYERKNOWNS_RUN_DRIVER_ENTRY, &inp, sizeof(inp), &oup, &out_size))
     {
-        return oup.success;
+        DecryptOutputByXor();
+        return oup.ret_val;
     }
     return false;
 }
+
+//stl::optional<uint64_t> PknDriver::map_and_run_driver(erptr_t image_buffer,
+//                                   euint64_t image_size,
+//                                   erptr_t entry_rva,
+//                                   erptr_t parameter1,
+//                                   erptr_t parameter2,
+//                                   erptr_t parameter1_is_rva,
+//                                   erptr_t parameter2_is_rva)
+//{
+//    MapAndRunDriverInput inp;
+//    inp.xor_val = xor_key;
+//    inp.image_buffer = image_buffer;
+//    inp.image_size = image_size;
+//    inp.entry_rva = entry_rva;
+//    inp.parameter1 = parameter1;
+//    inp.parameter2 = parameter2;
+//    inp.parameter1_is_rva = parameter1_is_rva;
+//    inp.parameter2_is_rva = parameter2_is_rva;
+//
+//    MapAndRunDriverOutput oup;
+//    uint32_t out_size = sizeof(oup);
+//    EncryptInputByXor();
+//    if (ioctl(IOCTL_PLAYERKNOWNS_MAP_AND_RUN_DRIVER, &inp, sizeof(inp), &oup, &out_size))
+//    {
+//        return oup.ret_val;
+//    }
+//    return stl::nullopt;
+//}
 
 bool PknDriver::get_mouse_pos(int *x, int *y) const noexcept
 {

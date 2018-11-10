@@ -27,9 +27,10 @@ public:
     bool query_system_information(uint64_t informaiton_class, void *buffer, uint32_t buffer_size, size_t *ret_size) const noexcept;
 
     // System process  memory
-    bool read_system_memory(erptr_t remote_address, size_t size, void *buffer) const noexcept;
-    bool write_system_memory(erptr_t remote_address, size_t size, const void *data) const noexcept;
-    stl::optional<erptr_t> allocate_nonpaged_memory(size_t size);
+    stl::optional<uint64_t> read_system_memory(erptr_t remote_address, size_t size, void *buffer) const noexcept;
+    stl::optional<uint64_t> write_system_memory(erptr_t remote_address, size_t size, const void *data) const noexcept;
+    stl::optional<erptr_t> allocate_nonpaged_memory(size_t size) const noexcept;
+    bool free_nonpaged_memory(erptr_t ptr) const noexcept;
 
     // process memory
     //void read_process_memories(pid_t pid, size_t count, const ReadProcessMemoriesData *pdatas) const;
@@ -62,11 +63,21 @@ public:
                             _Out_opt_ pid_t *tid
     )const noexcept;
 
-    bool allocate_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, uint32_t protect, erptr_t *allocated_base, size_t *allocated_size);
-    bool free_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, erptr_t *freed_base = nullptr, size_t *freed_size = nullptr);
-    bool protect_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t protect, erptr_t *protected_base = nullptr, size_t *protected_size = nullptr, uint32_t *old_protect = nullptr);
-    stl::optional<uint64_t> delete_unloaded_drivers(erptr_t rva_mm_unloaded_drivers, erptr_t rva_mm_last_unloaded_driver, const wchar_t *name_pattern, size_t string_size);
-    bool run_driver_entry(erptr_t entry, uint64_t arg1, uint64_t arg2);
+    bool allocate_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, uint32_t protect, erptr_t *allocated_base, size_t *allocated_size) const noexcept;
+    bool free_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, erptr_t *freed_base = nullptr, size_t *freed_size = nullptr) const noexcept;
+    bool protect_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t protect, erptr_t *protected_base = nullptr, size_t *protected_size = nullptr, uint32_t *old_protect = nullptr) const noexcept;
+    stl::optional<uint64_t> delete_unloaded_drivers(erptr_t rva_mm_unloaded_drivers, erptr_t rva_mm_last_unloaded_driver, estr_t name_pattern) const noexcept;
+
+    // driver mapping
+    stl::optional<uint64_t> run_driver_entry(erptr_t entry, uint64_t arg1, uint64_t arg2) const noexcept;
+    //stl::optional<uint64_t> map_and_run_driver(erptr_t image_buffer,
+    //                        euint64_t image_size,
+    //                        erptr_t entry_rva,
+    //                        erptr_t parameter1,
+    //                        erptr_t parameter2,
+    //                        erptr_t parameter1_is_rva,
+    //                        erptr_t parameter2_is_rva
+    //);
 public:
     // mouse
     bool get_mouse_pos(int *x, int *y) const noexcept;

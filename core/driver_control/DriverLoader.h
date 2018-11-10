@@ -1,16 +1,16 @@
 ﻿#include "../base/types.h"
 
 #include "../registry/UserRegistry.hpp"
+#include "../base/fs/fsutils.h"
 
 /*
 use load() to load driver.
 driver will be auto unloaded when object is destructed.
 */
-class DriverLoader
-{
+class DriverLoader {
 public:
     DriverLoader(const estr_t &service_name, const estr_t &driver_path)
-        :service_name(service_name), driver_path(driver_path)
+        :_service_name(service_name), _driver_path(driver_path)
     {}
     ~DriverLoader()
     {
@@ -21,7 +21,9 @@ public:
     bool create()
     {
         if (!created)
-            created = create_driver_service(service_name, driver_path);
+        {
+            created = create_driver_service(_service_name, _driver_path);
+        }
         return created;
     }
     bool load()
@@ -30,7 +32,7 @@ public:
         {
             if (!loaded)
             {
-                loaded = start_service(this->service_name);
+                loaded = start_service(this->_service_name);
             }
         }
         return loaded;
@@ -39,23 +41,33 @@ public:
     {
         if (loaded)
         {
-            loaded = !stop_service(service_name);
+            loaded = !stop_service(_service_name);
         }
         return !loaded;
     }
     bool unload()
     {
-        stop();
-        if (created)
+        if (stop())
         {
-            created = !delete_service(this->service_name);
+            if (created)
+            {
+                created = !delete_service(this->_service_name);
+            }
         }
         return !loaded && !created;
+    }
+    const estr_t &driver_path() const noexcept
+    {
+        return _driver_path;
+    }
+    estr_t driver_filename()
+    {
+        return file_name_for_path(_driver_path);
     }
     inline UserRegistry registry()
     {
         estr_t path = make_estr(R"(\Registry\Machine\SYSTEM\CurrentControlSet\Services\)");
-        path += service_name;
+        path += _service_name;
         return UserRegistry(path);
     }
 public:
@@ -65,9 +77,9 @@ public:
     static bool delete_service(const estr_t &eservice_name);
     static bool enable_privilege(const char *name);
     static bool enable_load_driver_privilege();
-private:
+public:
     bool created = false;
     bool loaded = false;
-    estr_t driver_path;
-    estr_t service_name;
+    estr_t _driver_path;
+    estr_t _service_name;
 };

@@ -25,7 +25,7 @@ namespace pkn
             estr_t file;
             if (mapped_file(region.base, &file))
             {
-                file = file_base_name(file);
+                file = file_name_for_path(file);
                 if (file == executable_name)
                     return true;
             }
@@ -44,7 +44,7 @@ namespace pkn
             estr_t file;
             if (mapped_file(region.base, &file))
             {
-                file = file_base_name(file).to_lower();
+                file = file_name_for_path(file).to_lower();
                 if (file == ln)
                     return true;
             }
@@ -118,7 +118,7 @@ namespace pkn
                 estr_t image_path;
                 if (get_mapped_file(region.base, &image_path))
                 {
-                    auto base_name = file_base_name(image_path);
+                    auto base_name = file_name_for_path(image_path);
                     _mapped_file[region.base] = base_name;
                 }
             }
@@ -138,7 +138,7 @@ namespace pkn
         estr_t image_path;
         if (_addressable_process.mapped_file(process_base, &image_path))
         {
-            auto main_file_name = file_base_name(image_path);
+            auto main_file_name = file_name_for_path(image_path);
             _main_regions = _addressable_process.file_regions(main_file_name);
         }
     }

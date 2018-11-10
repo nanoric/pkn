@@ -299,6 +299,7 @@ _exit:
     {
         CloseServiceHandle(service_manager);
     }
+
     return delete_succeed;
 }
 

@@ -158,7 +158,7 @@ stl::optional<pid_t> ProcessUtils::pid_from_process_name(const estr_t &target_pr
                 continue;
             if (auto process_name = this->get_process_name(current_pid); process_name)
             {
-                auto current_process_name = file_base_name(*process_name);
+                auto current_process_name = file_name_for_path(*process_name);
                 if (target_process_name == current_process_name)
                 {
                     return current_pid;

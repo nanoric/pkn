@@ -59,7 +59,6 @@ public:
         RtlInitUnicodeString(oa.ObjectName, path_ws.c_str());
 
         auto status = this->zwOpenKey(&handle, KEY_QUERY_VALUE | KEY_SET_VALUE | KEY_CREATE_SUB_KEY, &oa);
-        DebugPrint("ZwOpenKey handle:(%llx)", handle);
         return NT_SUCCESS(status);
     }
     void close()

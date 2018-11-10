@@ -21,12 +21,12 @@
 */
 #pragma once
 
-#include <windows.h>
-
 #ifndef STATUS_SUCCESS
 #   define STATUS_SUCCESS 0
 #endif
 
+#pragma warning(push)
+#pragma warning(disable : 4201 )
 
 namespace pkn
 {
@@ -47,8 +47,8 @@ namespace pkn
         {
             struct
             {
-                WORD Length;
-                WORD MaximumLength;
+                uint16_t Length;
+                uint16_t MaximumLength;
             };
             T dummy;
         };
@@ -83,11 +83,11 @@ namespace pkn
         T ActiveRpcHandle;
         T ThreadLocalStoragePointer;
         T ProcessEnvironmentBlock;
-        DWORD LastErrorValue;
-        DWORD CountOfOwnedCriticalSections;
+        uint32_t LastErrorValue;
+        uint32_t CountOfOwnedCriticalSections;
         T CsrClientThread;
         T Win32ThreadInfo;
-        DWORD User32Reserved[26];
+        uint32_t User32Reserved[26];
         //rest of the structure is not defined for now, as it is not needed
     };
 
@@ -101,14 +101,14 @@ namespace pkn
         T EntryPoint;
         union
         {
-            DWORD SizeOfImage;
+            uint32_t SizeOfImage;
             T dummy01;
         };
         _UNICODE_STRING_T<T> FullDllName;
         _UNICODE_STRING_T<T> BaseDllName;
-        DWORD Flags;
-        WORD LoadCount;
-        WORD TlsIndex;
+        uint32_t Flags;
+        uint16_t LoadCount;
+        uint16_t TlsIndex;
         union
         {
             _LIST_ENTRY_T<T> HashLinks;
@@ -121,7 +121,7 @@ namespace pkn
         union
         {
             T LoadedImports;
-            DWORD TimeDateStamp;
+            uint32_t TimeDateStamp;
         };
         T EntryPointActivationContext;
         T PatchInformation;
@@ -136,14 +136,14 @@ namespace pkn
     template <class T>
     struct _PEB_LDR_DATA_T
     {
-        DWORD Length;
-        DWORD Initialized;
+        uint32_t Length;
+        uint32_t Initialized;
         T SsHandle;
         _LIST_ENTRY_T<T> InLoadOrderModuleList;
         _LIST_ENTRY_T<T> InMemoryOrderModuleList;
         _LIST_ENTRY_T<T> InInitializationOrderModuleList;
         T EntryInProgress;
-        DWORD ShutdownInProgress;
+        uint32_t ShutdownInProgress;
         T ShutdownThreadId;
 
     };
@@ -155,10 +155,10 @@ namespace pkn
         {
             struct
             {
-                BYTE InheritedAddressSpace;
-                BYTE ReadImageFileExecOptions;
-                BYTE BeingDebugged;
-                BYTE BitField;
+                uint8_t InheritedAddressSpace;
+                uint8_t ReadImageFileExecOptions;
+                uint8_t BeingDebugged;
+                uint8_t BitField;
             };
             T dummy01;
         };
@@ -173,22 +173,22 @@ namespace pkn
         T IFEOKey;
         T CrossProcessFlags;
         T UserSharedInfoPtr;
-        DWORD SystemReserved;
-        DWORD AtlThunkSListPtr32;
+        uint32_t SystemReserved;
+        uint32_t AtlThunkSListPtr32;
         T ApiSetMap;
         T TlsExpansionCounter;
         T TlsBitmap;
-        DWORD TlsBitmapBits[2];
+        uint32_t TlsBitmapBits[2];
         T ReadOnlySharedMemoryBase;
         T HotpatchInformation;
         T ReadOnlyStaticServerData;
         T AnsiCodePageData;
         T OemCodePageData;
         T UnicodeCaseTableData;
-        DWORD NumberOfProcessors;
+        uint32_t NumberOfProcessors;
         union
         {
-            DWORD NtGlobalFlag;
+            uint32_t NtGlobalFlag;
             NGF dummy02;
         };
         LARGE_INTEGER CriticalSectionTimeout;
@@ -196,26 +196,26 @@ namespace pkn
         T HeapSegmentCommit;
         T HeapDeCommitTotalFreeThreshold;
         T HeapDeCommitFreeBlockThreshold;
-        DWORD NumberOfHeaps;
-        DWORD MaximumNumberOfHeaps;
+        uint32_t NumberOfHeaps;
+        uint32_t MaximumNumberOfHeaps;
         T ProcessHeaps;
         T GdiSharedHandleTable;
         T ProcessStarterHelper;
         T GdiDCAttributeList;
         T LoaderLock;
-        DWORD OSMajorVersion;
-        DWORD OSMinorVersion;
-        WORD OSBuildNumber;
-        WORD OSCSDVersion;
-        DWORD OSPlatformId;
-        DWORD ImageSubsystem;
-        DWORD ImageSubsystemMajorVersion;
+        uint32_t OSMajorVersion;
+        uint32_t OSMinorVersion;
+        uint16_t OSBuildNumber;
+        uint16_t OSCSDVersion;
+        uint32_t OSPlatformId;
+        uint32_t ImageSubsystem;
+        uint32_t ImageSubsystemMajorVersion;
         T ImageSubsystemMinorVersion;
         T ActiveProcessAffinityMask;
         T GdiHandleBuffer[A];
         T PostProcessInitRoutine;
         T TlsExpansionBitmap;
-        DWORD TlsExpansionBitmapBits[32];
+        uint32_t TlsExpansionBitmapBits[32];
         T SessionId;
         ULARGE_INTEGER AppCompatFlags;
         ULARGE_INTEGER AppCompatFlagsUser;
@@ -230,7 +230,7 @@ namespace pkn
         T FlsCallback;
         _LIST_ENTRY_T<T> FlsListHead;
         T FlsBitmap;
-        DWORD FlsBitmapBits[4];
+        uint32_t FlsBitmapBits[4];
         T FlsHighIndex;
         T WerRegistrationData;
         T WerShipAssertPtr;
@@ -239,78 +239,78 @@ namespace pkn
         T TracingFlags;
     };
 
-    typedef _LDR_DATA_TABLE_ENTRY_T<DWORD> LDR_DATA_TABLE_ENTRY32;
-    typedef _LDR_DATA_TABLE_ENTRY_T<DWORD64> LDR_DATA_TABLE_ENTRY64;
+    typedef _LDR_DATA_TABLE_ENTRY_T<uint32_t> LDR_DATA_TABLE_ENTRY32;
+    typedef _LDR_DATA_TABLE_ENTRY_T<uint64_t> LDR_DATA_TABLE_ENTRY64;
 
-    typedef _TEB_T_<DWORD> TEB32;
-    typedef _TEB_T_<DWORD64> TEB64;
+    typedef _TEB_T_<uint32_t> TEB32;
+    typedef _TEB_T_<uint64_t> TEB64;
 
-    typedef _PEB_LDR_DATA_T<DWORD> PEB_LDR_DATA32;
-    typedef _PEB_LDR_DATA_T<DWORD64> PEB_LDR_DATA64;
+    typedef _PEB_LDR_DATA_T<uint32_t> PEB_LDR_DATA32;
+    typedef _PEB_LDR_DATA_T<uint64_t> PEB_LDR_DATA64;
 
-    typedef _PEB_T<DWORD, DWORD64, 34> PEB32;
-    typedef _PEB_T<DWORD64, DWORD, 30> PEB64;
+    typedef _PEB_T<uint32_t, uint64_t, 34> PEB32;
+    typedef _PEB_T<uint64_t, uint32_t, 30> PEB64;
 
     struct _XSAVE_FORMAT64
     {
-        WORD ControlWord;
-        WORD StatusWord;
-        BYTE TagWord;
-        BYTE Reserved1;
-        WORD ErrorOpcode;
-        DWORD ErrorOffset;
-        WORD ErrorSelector;
-        WORD Reserved2;
-        DWORD DataOffset;
-        WORD DataSelector;
-        WORD Reserved3;
-        DWORD MxCsr;
-        DWORD MxCsr_Mask;
+        uint16_t ControlWord;
+        uint16_t StatusWord;
+        uint8_t TagWord;
+        uint8_t Reserved1;
+        uint16_t ErrorOpcode;
+        uint32_t ErrorOffset;
+        uint16_t ErrorSelector;
+        uint16_t Reserved2;
+        uint32_t DataOffset;
+        uint16_t DataSelector;
+        uint16_t Reserved3;
+        uint32_t MxCsr;
+        uint32_t MxCsr_Mask;
         _M128A FloatRegisters[8];
         _M128A XmmRegisters[16];
-        BYTE Reserved4[96];
+        uint8_t Reserved4[96];
     };
 
     struct _CONTEXT64
     {
-        DWORD64 P1Home;
-        DWORD64 P2Home;
-        DWORD64 P3Home;
-        DWORD64 P4Home;
-        DWORD64 P5Home;
-        DWORD64 P6Home;
-        DWORD ContextFlags;
-        DWORD MxCsr;
-        WORD SegCs;
-        WORD SegDs;
-        WORD SegEs;
-        WORD SegFs;
-        WORD SegGs;
-        WORD SegSs;
-        DWORD EFlags;
-        DWORD64 Dr0;
-        DWORD64 Dr1;
-        DWORD64 Dr2;
-        DWORD64 Dr3;
-        DWORD64 Dr6;
-        DWORD64 Dr7;
-        DWORD64 Rax;
-        DWORD64 Rcx;
-        DWORD64 Rdx;
-        DWORD64 Rbx;
-        DWORD64 Rsp;
-        DWORD64 Rbp;
-        DWORD64 Rsi;
-        DWORD64 Rdi;
-        DWORD64 R8;
-        DWORD64 R9;
-        DWORD64 R10;
-        DWORD64 R11;
-        DWORD64 R12;
-        DWORD64 R13;
-        DWORD64 R14;
-        DWORD64 R15;
-        DWORD64 Rip;
+        uint64_t P1Home;
+        uint64_t P2Home;
+        uint64_t P3Home;
+        uint64_t P4Home;
+        uint64_t P5Home;
+        uint64_t P6Home;
+        uint32_t ContextFlags;
+        uint32_t MxCsr;
+        uint16_t SegCs;
+        uint16_t SegDs;
+        uint16_t SegEs;
+        uint16_t SegFs;
+        uint16_t SegGs;
+        uint16_t SegSs;
+        uint32_t EFlags;
+        uint64_t Dr0;
+        uint64_t Dr1;
+        uint64_t Dr2;
+        uint64_t Dr3;
+        uint64_t Dr6;
+        uint64_t Dr7;
+        uint64_t Rax;
+        uint64_t Rcx;
+        uint64_t Rdx;
+        uint64_t Rbx;
+        uint64_t Rsp;
+        uint64_t Rbp;
+        uint64_t Rsi;
+        uint64_t Rdi;
+        uint64_t R8;
+        uint64_t R9;
+        uint64_t R10;
+        uint64_t R11;
+        uint64_t R12;
+        uint64_t R13;
+        uint64_t R14;
+        uint64_t R15;
+        uint64_t Rip;
         _XSAVE_FORMAT64 FltSave;
         _M128A Header[2];
         _M128A Legacy[8];
@@ -331,12 +331,12 @@ namespace pkn
         _M128A Xmm14;
         _M128A Xmm15;
         _M128A VectorRegister[26];
-        DWORD64 VectorControl;
-        DWORD64 DebugControl;
-        DWORD64 LastBranchToRip;
-        DWORD64 LastBranchFromRip;
-        DWORD64 LastExceptionToRip;
-        DWORD64 LastExceptionFromRip;
+        uint64_t VectorControl;
+        uint64_t DebugControl;
+        uint64_t LastBranchToRip;
+        uint64_t LastBranchFromRip;
+        uint64_t LastExceptionToRip;
+        uint64_t LastExceptionFromRip;
     };
 
     // Below defines for .ContextFlags field are taken from WinNT.h
@@ -356,3 +356,4 @@ namespace pkn
 #pragma pack(pop)
 
 }
+#pragma warning(pop)
