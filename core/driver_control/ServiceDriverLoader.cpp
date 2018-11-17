@@ -1,4 +1,4 @@
-﻿#include "DriverLoader.h"
+﻿#include "ServiceDriverLoader.h"
 
 #include <windows.h> 
 #include <winsvc.h> 
@@ -28,7 +28,7 @@ std::string error_to_string(DWORD last_error_code)
     return message;
 }
 
-bool DriverLoader::create_driver_service(const estr_t &eservice_name, const estr_t &driver_path)
+bool ServiceDriverLoader::create_driver_service(const estr_t &eservice_name, const estr_t &driver_path)
 {
     auto service_name = eservice_name.to_wstring();
     auto full_path = std::filesystem::absolute(driver_path.to<std::wstring>());
@@ -101,7 +101,7 @@ _exit:
     return retv;
 }
 
-bool DriverLoader::start_service(const estr_t &eservice_name)
+bool ServiceDriverLoader::start_service(const estr_t &eservice_name)
 {
     bool retv = false;
     SC_HANDLE service_manager = nullptr;
@@ -198,7 +198,7 @@ _exit:
     return retv;
 }
 
-bool DriverLoader::stop_service(const estr_t &eservice_name)
+bool ServiceDriverLoader::stop_service(const estr_t &eservice_name)
 {
     bool stop_succeed = false;
     SC_HANDLE service_manager = nullptr;
@@ -252,7 +252,7 @@ _exit:
     return stop_succeed;
 }
 
-bool DriverLoader::delete_service(const estr_t &eservice_name)
+bool ServiceDriverLoader::delete_service(const estr_t &eservice_name)
 {
     bool delete_succeed = false;
     SC_HANDLE service_manager = nullptr;
@@ -304,7 +304,7 @@ _exit:
     return delete_succeed;
 }
 
-bool DriverLoader::enable_load_driver_privilege()
+bool ServiceDriverLoader::enable_load_driver_privilege()
 {
     return pkn::Privilege::enable_privilege(SE_LOAD_DRIVER_NAME);
 }

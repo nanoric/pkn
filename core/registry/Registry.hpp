@@ -58,18 +58,49 @@ public:
         auto path_ws = this->path.to_wstring();
         RtlInitUnicodeString(oa.ObjectName, path_ws.c_str());
 
-        auto status = this->zwOpenKey(&handle, KEY_QUERY_VALUE | KEY_SET_VALUE | KEY_CREATE_SUB_KEY, &oa);
+        auto status = this->zwOpenKey(&_handle,
+                                      KEY_ALL_ACCESS,
+                                      &oa);
         return NT_SUCCESS(status);
     }
+
+    bool create()
+    {
+        UNICODE_STRING upath;
+        OBJECT_ATTRIBUTES oa;
+        InitializeObjectAttributes(&oa, &upath, OBJ_KERNEL_HANDLE, NULL, NULL);
+        auto path_ws = this->path.to_wstring();
+        RtlInitUnicodeString(oa.ObjectName, path_ws.c_str());
+
+        auto status = this->zwCreateKey(&_handle,
+                                        KEY_ALL_ACCESS,
+                                        &oa,
+                                        0,
+                                        nullptr,
+                                        0,
+                                        nullptr);
+        return NT_SUCCESS(status);
+    }
+
     void close()
     {
         if (is_opened())
         {
-            this->zwClose(handle);
-            handle = (HANDLE)-1;
+            this->zwClose(_handle);
+            _handle = (HANDLE)-1;
         }
     }
-    inline bool is_opened()const { return handle != nullptr && handle != (void *)-1; }
+    bool remove()
+    {
+        if (!is_opened())
+        {
+            if (!open())
+                return true;
+        }
+        auto status = this->zwDeleteKey(_handle);
+        return NT_SUCCESS(status);
+    }
+    inline bool is_opened()const { return _handle != nullptr && _handle != (void *)-1; }
 public:
     // todo: use template function set<type>
     template <class T>
@@ -87,6 +118,12 @@ public:
     template <>
     bool set<estr_t>(const estr_t &key_name, const estr_t &value)
     {
+        return set<std::wstring>(key_name, value.to_wstring());
+    }
+
+    template <>
+    bool set<std::wstring>(const estr_t &key_name, const std::wstring &value)
+    {
         if (!is_opened())
             if (!open())
                 return false;
@@ -94,8 +131,31 @@ public:
         auto wkey = key_name.to_wstring();
         UNICODE_STRING s;
         RtlInitUnicodeString(&s, wkey.c_str());
-        auto ws = value.to_wstring();
-        auto status = this->zwSetValueKey(handle, &s, 0, REG_SZ, (void *)ws.c_str(), (ULONG)(ws.size() + 1) * sizeof(estr_t::basic_t));
+        auto status = this->zwSetValueKey(_handle, &s, 0, REG_SZ, (void *)value.c_str(), (ULONG)(value.size() + 1) * sizeof(estr_t::basic_t));
+        if (NT_SUCCESS(status))
+        {
+            return true;
+        }
+        return false;
+    }
+    template <>
+    bool set<int>(const estr_t &key_name, const int &value)
+    {
+        uint32_t val = value;
+        return set<uint32_t>(key_name, val);
+    }
+
+    template <>
+    bool set<uint32_t>(const estr_t &key_name, const uint32_t &value)
+    {
+        if (!is_opened())
+            if (!open())
+                return false;
+
+        auto wkey = key_name.to_wstring();
+        UNICODE_STRING s;
+        RtlInitUnicodeString(&s, wkey.c_str());
+        auto status = this->zwSetValueKey(_handle, &s, 0, REG_DWORD, (void *)&value, 4);
         if (NT_SUCCESS(status))
         {
             return true;
@@ -118,11 +178,11 @@ public:
         UNICODE_STRING s;
         RtlInitUnicodeString(&s, wkey.c_str());
         ULONG size = 0;
-        auto status = this->zwQueryValueKey(handle, &s, KeyValuePartialInformation, nullptr, 0, &size);
+        auto status = this->zwQueryValueKey(_handle, &s, KeyValuePartialInformation, nullptr, 0, &size);
         if (status == STATUS_BUFFER_TOO_SMALL || status == STATUS_BUFFER_OVERFLOW)
         {
             std::unique_ptr<KEY_VALUE_PARTIAL_INFORMATION> buf(reinterpret_cast<KEY_VALUE_PARTIAL_INFORMATION *>(new char[size]));
-            status = this->zwQueryValueKey(handle, &s, KeyValuePartialInformation, buf.get(), size, &size);
+            status = this->zwQueryValueKey(_handle, &s, KeyValuePartialInformation, buf.get(), size, &size);
             if (NT_SUCCESS(status))
             {
                 return estr_t((const wchar_t *)buf->Data, (size_t)buf->DataLength / sizeof(wchar_t));
@@ -132,9 +192,18 @@ public:
     }
 protected:
     virtual NTSTATUS zwOpenKey(
-        PHANDLE            KeyHandle,
-        uint32_t        DesiredAccess,
-        POBJECT_ATTRIBUTES ObjectAttributes
+        PHANDLE             KeyHandle,
+        uint32_t            DesiredAccess,
+        POBJECT_ATTRIBUTES  ObjectAttributes
+    ) = 0;
+    virtual NTSTATUS zwCreateKey(
+        PHANDLE             KeyHandle,
+        ACCESS_MASK         DesiredAccess,
+        POBJECT_ATTRIBUTES  ObjectAttributes,
+        ULONG               TitleIndex,
+        PUNICODE_STRING     Class,
+        ULONG               CreateOptions,
+        PULONG              Disposition
     ) = 0;
     virtual NTSTATUS zwQueryValueKey(
         HANDLE                      KeyHandle,
@@ -152,8 +221,11 @@ protected:
         PVOID           Data,
         ULONG           DataSize
     ) = 0;
+    virtual NTSTATUS zwDeleteKey(
+        HANDLE          KeyHandle
+    ) = 0;
 private:
-    HANDLE handle = (void *)-1;
+    HANDLE _handle = (void *)-1;
     estr_t path;
     ZwCloseType zwClose; // since virtual method can't be call at destructor, use function pointer instead
     //std::wstring path_ws;

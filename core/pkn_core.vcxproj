@@ -164,7 +164,8 @@
     <ClInclude Include="base\types.h" />
     <ClInclude Include="driver_control\DriverBase.h" />
     <ClInclude Include="driver_control\DriverError.h" />
-    <ClInclude Include="driver_control\DriverLoader.h" />
+    <ClInclude Include="driver_control\RegistryDriverLoader.h" />
+    <ClInclude Include="driver_control\ServiceDriverLoader.h" />
     <ClInclude Include="driver_control\PknDriver.h" />
     <ClInclude Include="registry\Registry.hpp" />
     <ClInclude Include="remote_process\disable_windows_min_max_definetion.h" />
@@ -179,7 +180,8 @@
   <ItemGroup>
     <ClCompile Include="base\base.cpp" />
     <ClCompile Include="driver_control\DriverBase.cpp" />
-    <ClCompile Include="driver_control\DriverLoader.cpp" />
+    <ClCompile Include="driver_control\RegistryDriverLoader.cpp" />
+    <ClCompile Include="driver_control\ServiceDriverLoader.cpp" />
     <ClCompile Include="driver_control\PknDriver.cpp" />
     <ClCompile Include="remote_process\IAddressableProcess.cpp" />
     <ClCompile Include="remote_process\KernelProcess.cpp" />

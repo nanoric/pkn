@@ -63,9 +63,6 @@
     <ClInclude Include="driver_control\DriverError.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="driver_control\DriverLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="driver_control\PknDriver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -96,15 +93,18 @@
     <ClInclude Include="remote_process\UserProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="driver_control\ServiceDriverLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="driver_control\RegistryDriverLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="driver_control\DriverBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="driver_control\DriverLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="driver_control\PknDriver.cpp">
@@ -123,6 +123,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="remote_process\UserProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="driver_control\ServiceDriverLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="driver_control\RegistryDriverLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

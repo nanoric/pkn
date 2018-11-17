@@ -30,8 +30,8 @@
 
 #else
 
-#define DebugPrint( ...) 
-#define DebugPrintEx(level, ...) 
+#define DebugPrint( ...) void()
+#define DebugPrintEx(level, ...) void()
 
 
 #endif

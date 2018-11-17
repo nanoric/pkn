@@ -7,12 +7,12 @@
 use load() to load driver.
 driver will be auto unloaded when object is destructed.
 */
-class DriverLoader {
+class ServiceDriverLoader {
 public:
-    DriverLoader(const estr_t &service_name, const estr_t &driver_path)
+    ServiceDriverLoader(const estr_t &service_name, const estr_t &driver_path)
         :_service_name(service_name), _driver_path(driver_path)
     {}
-    ~DriverLoader()
+    ~ServiceDriverLoader()
     {
         stop();
         unload();

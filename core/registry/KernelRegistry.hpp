@@ -33,6 +33,24 @@ protected:
                            ObjectAttributes);
     }
 
+    virtual NTSTATUS zwCreateKey(PHANDLE KeyHandle,
+                                 ACCESS_MASK DesiredAccess,
+                                 POBJECT_ATTRIBUTES ObjectAttributes,
+                                 ULONG TitleIndex,
+                                 PUNICODE_STRING Class,
+                                 ULONG CreateOptions,
+                                 PULONG Disposition) override
+    {
+        return ::ZwCreateKey(KeyHandle,
+                             DesiredAccess,
+                             ObjectAttributes,
+                             TitleIndex,
+                             Class,
+                             CreateOptions,
+                             Disposition);
+    }
+
+
     virtual NTSTATUS zwQueryValueKey(HANDLE KeyHandle,
                                      PUNICODE_STRING ValueName,
                                      KEY_VALUE_INFORMATION_CLASS KeyValueInformationClass,
@@ -66,6 +84,13 @@ protected:
                                DataSize
         );
     }
+
+    virtual NTSTATUS zwDeleteKey(HANDLE Handle
+    ) override
+    {
+        return ::ZwDeleteKey(Handle);
+    }
+
     static NTSTATUS zwClose(HANDLE handle)
     {
         return ::ZwClose(handle);
