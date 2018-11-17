@@ -1,8 +1,8 @@
 #pragma once
 
-#include <pkn/stl/unordered_map>
-#include <pkn/stl/vector>
-#include <pkn/stl/functional>
+#include <unordered_map>
+#include <vector>
+#include <functional>
 
 namespace pkn
 {
@@ -123,7 +123,7 @@ public:
             auto &imp = pimports[i];
             if (!imp.Name)
                 break;
-            stl::string dll_name = (char*)base + rva_to_local_offset(imp.Name);
+            std::string dll_name = (char*)base + rva_to_local_offset(imp.Name);
             auto pthunk = (IMAGE_THUNK_DATA *)(base + rva_to_local_offset(imp.OriginalFirstThunk ? imp.OriginalFirstThunk : imp.FirstThunk));
             auto paddrs = (IMAGE_THUNK_DATA *)(base + rva_to_local_offset(imp.FirstThunk));
             while (pthunk->u1.AddressOfData)
@@ -147,7 +147,7 @@ public:
             }
         }
     }
-    using import_resolve_callback_t = stl::function<uint64_t(const stl::string &dll, const char *proc)>;
+    using import_resolve_callback_t = std::function<uint64_t(const std::string &dll, const char *proc)>;
     bool resolve_imports(import_resolve_callback_t resolve)
     {
         bool success = true;
@@ -227,8 +227,8 @@ public:
             memcpy(va, praw, section.SizeOfRawData);
         }
     }
-    stl::unordered_map<stl::string, stl::vector<ImportData>> imports;
-    stl::vector<IMAGE_SECTION_HEADER> sections;
+    std::unordered_map<std::string, std::vector<ImportData>> imports;
+    std::vector<IMAGE_SECTION_HEADER> sections;
     PIMAGE_NT_HEADERS64 pe = (PIMAGE_NT_HEADERS64)PEStructure::pe;
 };
 

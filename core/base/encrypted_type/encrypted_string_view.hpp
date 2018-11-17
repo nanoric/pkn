@@ -2,24 +2,22 @@
 
 #include <stdint.h>
 
-#include "../../../stl/string"
-// if string_view isn't exist or basic_string_view not exist in stl namespace
-// you have to enable c++17
-#include "../../../stl/string_view"
+#include <string>
+#include <string_view>
 
 #include "../compile_time/hash.hpp"
 #include "../compile_time/utils.hpp"
 #include "encrypted_number.hpp"
 
 template <class char_t>
-class basic_encrypted_string_view : public stl::basic_string_view<const_encrypted_number<char_t>>
+class basic_encrypted_string_view : public std::basic_string_view<const_encrypted_number<char_t>>
 {
 public:
     using basic_t = char_t;
     using ebasic_t = const_encrypted_number<char_t>;
-    using real_t = stl::basic_string_view<basic_t>;
-    using real_runtime_t = stl::basic_string<basic_t>;
-    using internal_t = stl::basic_string_view<ebasic_t>;
+    using real_t = std::basic_string_view<basic_t>;
+    using real_runtime_t = std::basic_string<basic_t>;
+    using internal_t = std::basic_string_view<ebasic_t>;
 public:
     using internal_t::basic_string_view;
     //real_t value() const
@@ -39,20 +37,20 @@ public:
     {
         string_type s;
         s.reserve(this->size());
-        stl::copy(this->begin(), this->end(), stl::back_inserter(s));
+        std::copy(this->begin(), this->end(), std::back_inserter(s));
         return s;
     }
-    inline stl::string to_string() const
+    inline std::string to_string() const
     {
-        return to<stl::string>();
+        return to<std::string>();
     }
-    inline stl::wstring to_wstring() const
+    inline std::wstring to_wstring() const
     {
-        return to<stl::wstring>();
+        return to<std::wstring>();
     }
-    inline stl::u32string to_u32string() const
+    inline std::u32string to_u32string() const
     {
-        return to<stl::u32string>();
+        return to<std::u32string>();
     }
 };
 
@@ -75,13 +73,13 @@ public:
     struct helper
     {};
     template <size_t ... idx>
-    struct helper<stl::index_sequence<idx ...>>
+    struct helper<std::index_sequence<idx ...>>
     {
         //using ebasic_t = typename string_value_type::ebasic_t;
         using basic_t = typename string_value_type::basic_t;
         using result = typename const_encrypted_string < seed, basic_t, string_value_type{}.value[idx] ... > ;
     };
-    using result = typename helper<typename stl::make_index_sequence < string_value_type{}.size >> ::result;
+    using result = typename helper<typename std::make_index_sequence < string_value_type{}.size >> ::result;
 };
 
 namespace compile_time

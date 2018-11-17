@@ -5,7 +5,7 @@
 
 
 
-#define PKN_ENABLE_DEBUG_PRINT 1
+#define PKN_ENABLE_DEBUG_PRINT 0
 
 
 #ifndef PKN_ENABLE_DEBUG_PRINT

@@ -62,7 +62,7 @@ public:
     }
     estr_t driver_filename()
     {
-        return file_name_for_path(_driver_path);
+        return pkn::filename_for_path(_driver_path);
     }
     inline UserRegistry registry()
     {

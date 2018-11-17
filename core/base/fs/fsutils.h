@@ -2,12 +2,16 @@
 
 #include "../types.h"
 
-inline estr_t file_name_for_path(const estr_t &path)
+namespace pkn
 {
-    size_t offset = path.rfind(U'\\');
+template <class T>
+inline T filename_for_path(const T &path)
+{
+    size_t offset = path.rfind(T::value_type('\\'));
     if (offset != -1)
     {
         return path.substr(offset + 1);
     }
     return path;
+}
 }

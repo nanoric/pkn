@@ -1,6 +1,6 @@
 #include "IAddressableProcess.h"
 #include "..\base\fs\fsutils.h"
-#include "../../stl/algorithm"
+#include <algorithm>
 
 namespace pkn
 {
@@ -20,12 +20,12 @@ namespace pkn
     {
         auto regions = memory_regions();
         MemoryRegions results;
-        stl::copy_if(regions.begin(), regions.end(), stl::back_inserter(results), [&, this](const MemoryRegion &region)
+        std::copy_if(regions.begin(), regions.end(), std::back_inserter(results), [&, this](const MemoryRegion &region)
         {
             estr_t file;
             if (mapped_file(region.base, &file))
             {
-                file = file_name_for_path(file);
+                file = filename_for_path(file);
                 if (file == executable_name)
                     return true;
             }
@@ -39,12 +39,12 @@ namespace pkn
         auto ln = executable_name.to_lower();
         auto regions = memory_regions();
         MemoryRegions results;
-        stl::copy_if(regions.begin(), regions.end(), stl::back_inserter(results), [&, this](const MemoryRegion &region)
+        std::copy_if(regions.begin(), regions.end(), std::back_inserter(results), [&, this](const MemoryRegion &region)
         {
             estr_t file;
             if (mapped_file(region.base, &file))
             {
-                file = file_name_for_path(file).to_lower();
+                file = filename_for_path(file).to_lower();
                 if (file == ln)
                     return true;
             }
@@ -118,7 +118,7 @@ namespace pkn
                 estr_t image_path;
                 if (get_mapped_file(region.base, &image_path))
                 {
-                    auto base_name = file_name_for_path(image_path);
+                    auto base_name = filename_for_path(image_path);
                     _mapped_file[region.base] = base_name;
                 }
             }
@@ -138,7 +138,7 @@ namespace pkn
         estr_t image_path;
         if (_addressable_process.mapped_file(process_base, &image_path))
         {
-            auto main_file_name = file_name_for_path(image_path);
+            auto main_file_name = filename_for_path(image_path);
             _main_regions = _addressable_process.file_regions(main_file_name);
         }
     }

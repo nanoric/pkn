@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <filesystem>
+#include "../utils/Privilege.hpp"
 
 std::string error_to_string(DWORD last_error_code)
 {
@@ -303,37 +304,7 @@ _exit:
     return delete_succeed;
 }
 
-bool DriverLoader::enable_privilege(const char *name)
-{
-    TOKEN_PRIVILEGES privilege;
-    HANDLE tokenHandle;
-
-    privilege.PrivilegeCount = 1;
-    privilege.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-    if (!LookupPrivilegeValueA(NULL, name,
-                               &privilege.Privileges[0].Luid))
-        return false;
-
-    if (!OpenProcessToken(GetCurrentProcess(),
-                          TOKEN_ADJUST_PRIVILEGES, &tokenHandle))
-        return false;
-
-    if (!AdjustTokenPrivileges(tokenHandle,
-                               false,
-                               &privilege,
-                               sizeof(privilege),
-                               nullptr,
-                               nullptr))
-    {
-        CloseHandle(tokenHandle);
-        return false;
-    }
-
-    CloseHandle(tokenHandle);
-    return true;
-}
-
 bool DriverLoader::enable_load_driver_privilege()
 {
-    return enable_privilege(SE_LOAD_DRIVER_NAME);
+    return pkn::Privilege::enable_privilege(SE_LOAD_DRIVER_NAME);
 }

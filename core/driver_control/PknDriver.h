@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <Windows.h>
 
-#include "../../stl/optional"
+#include <optional>
 
 #include "../base/types.h"
 #include "../base/noncopyable.h"
@@ -27,9 +27,9 @@ public:
     bool query_system_information(uint64_t informaiton_class, void *buffer, uint32_t buffer_size, size_t *ret_size) const noexcept;
 
     // System process  memory
-    stl::optional<uint64_t> read_system_memory(erptr_t remote_address, size_t size, void *buffer) const noexcept;
-    stl::optional<uint64_t> write_system_memory(erptr_t remote_address, size_t size, const void *data) const noexcept;
-    stl::optional<erptr_t> allocate_nonpaged_memory(size_t size) const noexcept;
+    std::optional<uint64_t> read_system_memory(erptr_t remote_address, size_t size, void *buffer) const noexcept;
+    std::optional<uint64_t> write_system_memory(erptr_t remote_address, size_t size, const void *data) const noexcept;
+    std::optional<erptr_t> allocate_nonpaged_memory(size_t size) const noexcept;
     bool free_nonpaged_memory(erptr_t ptr) const noexcept;
 
     // process memory
@@ -47,11 +47,11 @@ public:
     bool get_process_base(pid_t pid, erptr_t *base) const noexcept;
     bool get_process_exit_status(pid_t pid, NTSTATUS *status)const noexcept;
     bool get_process_times(pid_t pid, uint64_t * pcreation_time, uint64_t * pexit_time, uint64_t * pkernel_time, uint64_t * puser_time)const noexcept;
-    stl::optional<estr_t> get_process_name(pid_t pid) const noexcept;
+    std::optional<estr_t> get_process_name(pid_t pid) const noexcept;
     erptr_t get_peb_address() const noexcept;
     bool query_process_information(uint64_t pid, uint64_t informaiton_class, void *buffer, uint32_t buffer_size, size_t *ret_size) const noexcept;
     bool query_thread_information(uint64_t tid, uint64_t informaiton_class, void *buffer, uint32_t buffer_size, size_t *ret_size) const noexcept;
-    stl::optional<erptr_t> get_teb_address(uint64_t tid);
+    std::optional<erptr_t> get_teb_address(uint64_t tid);
     bool create_user_thread(pid_t pid,
                             _In_opt_ PSECURITY_DESCRIPTOR ThreadSecurityDescriptor,
                             _In_ bool CreateSuspended,
@@ -66,11 +66,11 @@ public:
     bool allocate_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, uint32_t protect, erptr_t *allocated_base, size_t *allocated_size) const noexcept;
     bool free_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t type, erptr_t *freed_base = nullptr, size_t *freed_size = nullptr) const noexcept;
     bool protect_virtual_memory(pid_t pid, erptr_t address, size_t size, uint32_t protect, erptr_t *protected_base = nullptr, size_t *protected_size = nullptr, uint32_t *old_protect = nullptr) const noexcept;
-    stl::optional<uint64_t> delete_unloaded_drivers(erptr_t rva_mm_unloaded_drivers, erptr_t rva_mm_last_unloaded_driver, estr_t name_pattern) const noexcept;
+    std::optional<uint64_t> delete_unloaded_drivers(erptr_t rva_mm_unloaded_drivers, erptr_t rva_mm_last_unloaded_driver, estr_t name_pattern) const noexcept;
 
     // driver mapping
-    stl::optional<uint64_t> run_driver_entry(erptr_t entry, uint64_t arg1, uint64_t arg2) const noexcept;
-    //stl::optional<uint64_t> map_and_run_driver(erptr_t image_buffer,
+    std::optional<uint64_t> run_driver_entry(erptr_t entry, uint64_t arg1, uint64_t arg2) const noexcept;
+    //std::optional<uint64_t> map_and_run_driver(erptr_t image_buffer,
     //                        euint64_t image_size,
     //                        erptr_t entry_rva,
     //                        erptr_t parameter1,

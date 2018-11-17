@@ -37,7 +37,9 @@ namespace pkn
     public:
         virtual ~IExtraProcess() = default;
     public:
+        // nullptr means failed
         virtual erptr_t get_peb_address() const PURE_VIRTUAL_FUNCTION_BODY;
+        // nullptr means failed
         virtual erptr_t get_teb_address(pid_t tid) const PURE_VIRTUAL_FUNCTION_BODY;
     };
 

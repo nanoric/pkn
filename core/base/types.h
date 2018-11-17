@@ -8,6 +8,7 @@
 
 using erptr_t = encrypted_number<rptr_t>;
 using ecrptr_t = const_encrypted_number<rptr_t>;
+
 using euint8_t = encrypted_number<uint8_t>;
 using euint16_t = encrypted_number<uint16_t>;
 using euint32_t = encrypted_number<uint32_t>;
@@ -17,6 +18,16 @@ using eint8_t = encrypted_number<int8_t>;
 using eint16_t = encrypted_number<int16_t>;
 using eint32_t = encrypted_number<int32_t>;
 using eint64_t = encrypted_number<int64_t>;
+
+using ecuint8_t = const_encrypted_number<uint8_t>;
+using ecuint16_t = const_encrypted_number<uint16_t>;
+using ecuint32_t = const_encrypted_number<uint32_t>;
+using ecuint64_t = const_encrypted_number<uint64_t>;
+
+using ecint8_t = const_encrypted_number<int8_t>;
+using ecint16_t = const_encrypted_number<int16_t>;
+using ecint32_t = const_encrypted_number<int32_t>;
+using ecint64_t = const_encrypted_number<int64_t>;
 
 using random_t = compile_time::random_t;
 using pid_t = euint64_t;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "../../../stl/functional"
+#include <xhash>
 #include "../compile_time/random.hpp"
 
 #pragma warning(push)
@@ -201,19 +201,6 @@ private:
 
 namespace std
 {
-template <typename internal_t>
-struct hash<encrypted_number<internal_t>>
-{
-    inline constexpr uint64_t operator ()(encrypted_number<internal_t> enc) const {
-        return enc.value();
-    }
-};
-}
-namespace eastl
-{
-template <typename T>
-struct hash
-{};
 template <typename internal_t>
 struct hash<encrypted_number<internal_t>>
 {

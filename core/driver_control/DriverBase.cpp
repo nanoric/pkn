@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <assert.h>
 
-#include <pkn/stl/string>
+#include <string>
 
 #include "../base/types.h"
 
@@ -20,7 +20,7 @@ namespace pkn
             return true;
         //assert(!this->is_opened());
         //auto name = estr_t(make_estr(UR"(\??\)")).to_wstring() + device_name;
-        auto name = stl::wstring(LR"(\??\)") + device_name;
+        auto name = std::wstring(LR"(\??\)") + device_name;
 
         auto h = CreateFileW(name.c_str(),
             GENERIC_READ | GENERIC_WRITE,

@@ -33,9 +33,9 @@ typedef struct _KEY_VALUE_PARTIAL_INFORMATION
 #include <pkn/core/marcos/debug_print.h>
 
 #include <pkn/core/base/types.h>
-#include <pkn/stl/optional>
-#include <pkn/stl/unique_ptr>
-#include <pkn/stl/functional>
+#include <optional>
+#include <memory>
+#include <functional>
 
 class Registry
 {
@@ -104,16 +104,16 @@ public:
     }
 
     template <class T>
-    stl::optional<T> get(const estr_t &key_name)
+    std::optional<T> get(const estr_t &key_name)
     {
         static_assert(false, "This type is currently not supported, please implement it yourself");
     }
     template <>
-    stl::optional<estr_t> get<estr_t>(const estr_t &key_name)
+    std::optional<estr_t> get<estr_t>(const estr_t &key_name)
     {
         if (!is_opened())
             if (!open())
-                return stl::nullopt;
+                return std::nullopt;
         auto wkey = key_name.to_wstring();
         UNICODE_STRING s;
         RtlInitUnicodeString(&s, wkey.c_str());
@@ -121,14 +121,14 @@ public:
         auto status = this->zwQueryValueKey(handle, &s, KeyValuePartialInformation, nullptr, 0, &size);
         if (status == STATUS_BUFFER_TOO_SMALL || status == STATUS_BUFFER_OVERFLOW)
         {
-            stl::unique_ptr<KEY_VALUE_PARTIAL_INFORMATION> buf(reinterpret_cast<KEY_VALUE_PARTIAL_INFORMATION *>(new char[size]));
+            std::unique_ptr<KEY_VALUE_PARTIAL_INFORMATION> buf(reinterpret_cast<KEY_VALUE_PARTIAL_INFORMATION *>(new char[size]));
             status = this->zwQueryValueKey(handle, &s, KeyValuePartialInformation, buf.get(), size, &size);
             if (NT_SUCCESS(status))
             {
                 return estr_t((const wchar_t *)buf->Data, (size_t)buf->DataLength / sizeof(wchar_t));
             }
         }
-        return stl::nullopt;
+        return std::nullopt;
     }
 protected:
     virtual NTSTATUS zwOpenKey(
@@ -156,5 +156,5 @@ private:
     HANDLE handle = (void *)-1;
     estr_t path;
     ZwCloseType zwClose; // since virtual method can't be call at destructor, use function pointer instead
-    //stl::wstring path_ws;
+    //std::wstring path_ws;
 };

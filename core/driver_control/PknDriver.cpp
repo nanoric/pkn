@@ -4,6 +4,7 @@
 
 #include <string>
 #include <string_view>
+#include <xutility>
 
 #include "PknDriver.h"
 
@@ -88,7 +89,7 @@ bool PknDriver::write_process_memory(pid_t pid, erptr_t remote_address, size_t s
     return ioctl(IOCTL_PLAYERKNOWNS_WRITE_PROCESS_MEMORY, &inp, sizeof(inp), nullptr, nullptr);
 }
 
-stl::optional<uint64_t> PknDriver::read_system_memory(erptr_t remote_address, size_t size, void *buffer) const noexcept
+std::optional<uint64_t> PknDriver::read_system_memory(erptr_t remote_address, size_t size, void *buffer) const noexcept
 {
     ReadSystemMemoryInput inp;
     ReadSystemMemoryOutput oup;
@@ -105,10 +106,10 @@ stl::optional<uint64_t> PknDriver::read_system_memory(erptr_t remote_address, si
         DecryptOutputByXor();
         return oup.bytesread;
     }
-    return stl::nullopt;
+    return std::nullopt;
 }
 
-stl::optional<uint64_t> PknDriver::write_system_memory(erptr_t remote_address, size_t size, const void *data) const noexcept
+std::optional<uint64_t> PknDriver::write_system_memory(erptr_t remote_address, size_t size, const void *data) const noexcept
 {
     WriteSystemMemoryInput inp;
     WriteSystemMemoryOutput oup;
@@ -124,10 +125,10 @@ stl::optional<uint64_t> PknDriver::write_system_memory(erptr_t remote_address, s
         DecryptOutputByXor();
         return oup.byteswritten;
     }
-    return stl::nullopt;
+    return std::nullopt;
 }
 
-stl::optional<erptr_t> PknDriver::allocate_nonpaged_memory(size_t size) const noexcept
+std::optional<erptr_t> PknDriver::allocate_nonpaged_memory(size_t size) const noexcept
 {
     AllocateNonpagedMemoryInput inp;
     inp.xor_val = xor_key;
@@ -141,7 +142,7 @@ stl::optional<erptr_t> PknDriver::allocate_nonpaged_memory(size_t size) const no
         DecryptOutputByXor();
         return erptr_t(oup.address);
     }
-    return stl::nullopt;
+    return std::nullopt;
 }
 
 bool PknDriver::free_nonpaged_memory(erptr_t ptr) const noexcept
@@ -183,7 +184,7 @@ bool PknDriver::get_mapped_file(pid_t pid, uint64_t address, estr_t *mapped_file
         DecryptOutputByXor();
         estr_t retv;
         retv.reserve(512);
-        auto i = stl::back_inserter(retv);
+        auto i = std::back_inserter(retv);
         for (auto p = oup.image_path; *p; p++)
         {
             *i++ = *p;
@@ -230,7 +231,7 @@ bool PknDriver::get_process_times(pid_t pid, uint64_t * pcreation_time, uint64_t
     return false;
 }
 
-stl::optional<estr_t> PknDriver::get_process_name(pid_t pid) const noexcept
+std::optional<estr_t> PknDriver::get_process_name(pid_t pid) const noexcept
 {
     GetProcessNameInput inp = { xor_key, pid };
     GetProcessNameOutput oup;
@@ -242,14 +243,14 @@ stl::optional<estr_t> PknDriver::get_process_name(pid_t pid) const noexcept
         DecryptOutputByXor();
         estr_t retv;
         retv.reserve(512);
-        auto i = stl::back_inserter(retv);
+        auto i = std::back_inserter(retv);
         for (auto p = oup.process_name; *p; p++)
         {
             *i++ = *p;
         }
         return retv;
     }
-    return stl::nullopt;
+    return std::nullopt;
 }
 
 erptr_t PknDriver::get_peb_address() const noexcept
@@ -370,7 +371,7 @@ bool PknDriver::query_thread_information(uint64_t tid, uint64_t informaiton_clas
     }
 }
 
-stl::optional<erptr_t> PknDriver::get_teb_address(uint64_t tid)
+std::optional<erptr_t> PknDriver::get_teb_address(uint64_t tid)
 {
     typedef struct _THREAD_BASIC_INFORMATION {
         NTSTATUS                ExitStatus;
@@ -387,7 +388,7 @@ stl::optional<erptr_t> PknDriver::get_teb_address(uint64_t tid)
     {
         return erptr_t((uint64_t)tbi.TebBaseAddress);
     }
-    return stl::nullopt;
+    return std::nullopt;
 }
 
 bool PknDriver::create_user_thread(pid_t pid,
@@ -497,14 +498,14 @@ bool PknDriver::protect_virtual_memory(pid_t pid, erptr_t address, size_t size, 
     return false;
 }
 
-stl::optional<uint64_t> PknDriver::delete_unloaded_drivers(erptr_t rva_mm_unloaded_drivers, erptr_t rva_mm_last_unloaded_driver, estr_t name_pattern) const noexcept
+std::optional<uint64_t> PknDriver::delete_unloaded_drivers(erptr_t rva_mm_unloaded_drivers, erptr_t rva_mm_last_unloaded_driver, estr_t name_pattern) const noexcept
 {
     DeleteUnloadedDriversInput inp;
     inp.xor_val = xor_key;
     inp.pMmUnloadedDrivers = (UINT64)rva_mm_unloaded_drivers;
     inp.pMmLastUnloadedDriver = (UINT64)rva_mm_last_unloaded_driver;
     if (name_pattern.size() >= sizeof(inp.name) / sizeof(*inp.name))
-        return stl::nullopt;
+        return std::nullopt;
     //if (name_pattern.size() > sizeof(inp.name))
     //    name_pattern.resize(sizeof(inp.name) - sizeof(*inp.name));
     memcpy(&inp.name, name_pattern.to_wstring().c_str(), name_pattern.size() * sizeof(name_pattern[0]));
@@ -517,10 +518,10 @@ stl::optional<uint64_t> PknDriver::delete_unloaded_drivers(erptr_t rva_mm_unload
     {
         return oup.ndelete;
     }
-    return stl::nullopt;
+    return std::nullopt;
 }
 
-stl::optional<uint64_t> PknDriver::run_driver_entry(erptr_t entry, uint64_t arg1, uint64_t arg2) const noexcept
+std::optional<uint64_t> PknDriver::run_driver_entry(erptr_t entry, uint64_t arg1, uint64_t arg2) const noexcept
 {
     RunDriverEntryInput inp;
     inp.xor_val = xor_key;
@@ -539,7 +540,7 @@ stl::optional<uint64_t> PknDriver::run_driver_entry(erptr_t entry, uint64_t arg1
     return false;
 }
 
-//stl::optional<uint64_t> PknDriver::map_and_run_driver(erptr_t image_buffer,
+//std::optional<uint64_t> PknDriver::map_and_run_driver(erptr_t image_buffer,
 //                                   euint64_t image_size,
 //                                   erptr_t entry_rva,
 //                                   erptr_t parameter1,
@@ -564,7 +565,7 @@ stl::optional<uint64_t> PknDriver::run_driver_entry(erptr_t entry, uint64_t arg1
 //    {
 //        return oup.ret_val;
 //    }
-//    return stl::nullopt;
+//    return std::nullopt;
 //}
 
 bool PknDriver::get_mouse_pos(int *x, int *y) const noexcept
