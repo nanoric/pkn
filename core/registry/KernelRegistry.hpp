@@ -91,6 +91,26 @@ protected:
         return ::ZwDeleteKey(Handle);
     }
 
+    virtual NTSTATUS zwEnumerateKey(
+        HANDLE                KeyHandle,
+        ULONG                 Index,
+        KEY_INFORMATION_CLASS KeyInformationClass,
+        PVOID                 KeyInformation,
+        ULONG                 Length,
+        PULONG                ResultLength
+    ) override
+    {
+        return ::ZwEnumerateKey(
+            KeyHandle,
+            Index,
+            KeyInformationClass,
+            KeyInformation,
+            Length,
+            ResultLength
+        );
+    }
+
+
     static NTSTATUS zwClose(HANDLE handle)
     {
         return ::ZwClose(handle);

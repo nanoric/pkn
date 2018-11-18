@@ -114,6 +114,35 @@ protected:
         return ZwDeleteKey(Handle);
     }
 
+    virtual NTSTATUS zwEnumerateKey(
+        HANDLE                KeyHandle,
+        ULONG                 Index,
+        KEY_INFORMATION_CLASS KeyInformationClass,
+        PVOID                 KeyInformation,
+        ULONG                 Length,
+        PULONG                ResultLength
+    ) override
+    {
+        using fZwEnumerateKey = NTSTATUS(NTAPI*)(
+            HANDLE                KeyHandle,
+            ULONG                 Index,
+            KEY_INFORMATION_CLASS KeyInformationClass,
+            PVOID                 KeyInformation,
+            ULONG                 Length,
+            PULONG                ResultLength
+            );
+        static fZwEnumerateKey ZwEnumerateKey = (fZwEnumerateKey)GetProcAddress(LoadLibraryW(make_estr("NtDll").to_wstring().c_str()),
+                                                                       make_const_encrypted_string("ZwEnumerateKey").to_string().c_str());
+        return ZwEnumerateKey(
+            KeyHandle,
+            Index,
+            KeyInformationClass,
+            KeyInformation,
+            Length,
+            ResultLength
+        );
+    }
+
     static NTSTATUS zwClose(HANDLE Handle)
     {
         using fZwClose = NTSTATUS(NTAPI*)(HANDLE Handle);

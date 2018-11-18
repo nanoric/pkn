@@ -89,6 +89,7 @@ protected:
         auto reg = this->registry();
         if (!reg.create())
             return false;
+
         auto full_path = std::filesystem::absolute(_driver_path.to<std::wstring>());
         estr_t kernel_path = estr_t(make_estr(R"(\??\)")) + estr_t(full_path.wstring());
         if (!reg.set(make_estr("ErrorControl"), 1))
@@ -111,10 +112,17 @@ protected:
         auto ws = this->registry_path().to_wstring();
         RtlInitUnicodeString(&us, ws.c_str());
         auto status = ZwLoadDriver(&us);
+
 #ifndef STATUS_IMAGE_ALREADY_LOADED
 #define STATUS_IMAGE_ALREADY_LOADED 0xC000010E
 #endif
-        return NT_SUCCESS(status) || STATUS_IMAGE_ALREADY_LOADED == status;
+        if (!NT_SUCCESS(status) && STATUS_IMAGE_ALREADY_LOADED != status)
+        {
+            DebugPrint("load driver status : %x\n", status);
+            return false;
+        }
+
+        return true;
     }
     bool stop_no_check()
     {
@@ -126,7 +134,12 @@ protected:
         auto ws = this->registry_path().to_wstring();
         RtlInitUnicodeString(&us, ws.c_str());
         auto status = ZwUnloadDriver(&us);
-        return NT_SUCCESS(status);
+        if (!NT_SUCCESS(status))
+        {
+            DebugPrint("unload driver status : %x\n", status);
+            return false;
+        }
+        return true;
     }
     bool remove_no_check()
     {
