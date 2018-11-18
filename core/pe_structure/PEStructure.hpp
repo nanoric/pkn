@@ -3,11 +3,13 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
+#include <random>
 
 namespace pkn
 {
 
-class PEStructure {
+class PEStructure
+{
 public:
     PEStructure(const void *pe_data)
         : base((uint8_t *)pe_data),
@@ -28,16 +30,20 @@ protected:
     PIMAGE_NT_HEADERS pe;
 };
 
-struct ImportByName {
+struct ImportByName
+{
     const char *name;
 };
 
-struct ImportByOrdinal {
+struct ImportByOrdinal
+{
     uint64_t ordinal;
 };
 
-struct ImportData {
-    union __Data {
+struct ImportData
+{
+    union __Data
+    {
         ImportByName by_name;
         ImportByOrdinal by_ordinal;
     }u;
@@ -46,39 +52,10 @@ struct ImportData {
     uint64_t *imported_address; // this saves address of imported function, writing **real** entry of imported function into this address will just done this import.
 };
 
-//class PEStructureDetail : PEStructure
-//{
-//public:
-//    using PEStructure::PEStructure;
-//public:
-//    uint64_t va_to_fileoffset(uint64_t va)
-//    {
-//        auto psections = (PIMAGE_SECTION_HEADER)((uint8_t *)pe + pe->FileHeader.SizeOfOptionalHeader);
-//        if (psections->VirtualAddress > va)
-//            return va;
-//        for (int i = 0; i < pe->FileHeader.NumberOfSections; i++)
-//        {
-//            auto vbase = psections[i].VirtualAddress;
-//            auto vsize = psections[i].Misc.VirtualSize;
-//            auto raw_base = psections[i].PointerToRawData;
-//            auto raw_size = psections[i].SizeOfRawData;
-//            if (va >= vbase && va <= vbase + vsize)
-//            {
-//                return va - vbase + raw_base;
-//            }
-//        }
-//        return 0;
-//    }
-//    uint64_t image_size()
-//    {
-//        return pe->OptionalHeader.SizeOfImage;
-//    }
-//    PIMAGE_NT_HEADERS32 pe = (PIMAGE_NT_HEADERS32)PEStructure::pe;
-//};
-
 // used to parse PE File
 // before call any other functions, call parse() first.
-class RawPEStructure64 : PEStructure {
+class RawPEStructure64 : PEStructure
+{
 public:
     using PEStructure::PEStructure;
 public:
@@ -171,18 +148,22 @@ public:
         bool success = true;
         uint64_t diff = rbase - pe->OptionalHeader.ImageBase;
 #pragma pack(push, 1)
-        struct IMAGE_RELOC {
+        struct IMAGE_RELOC
+        {
             uint16_t  offset : 12;
             uint16_t  type : 4;
         };
         using PIMAGE_RELOC = IMAGE_RELOC * ;
 #pragma pack(pop)
         auto &reloc_directory = pe->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC];
-        auto reloc_size = reloc_directory.Size;
-        auto reloc_block = (IMAGE_BASE_RELOCATION *)(base + rva_to_local_offset(reloc_directory.VirtualAddress));
-        auto size = reloc_block->SizeOfBlock;
-        auto block_base = base + rva_to_local_offset(reloc_block->VirtualAddress);
-        for (uint8_t *p = (uint8_t *)(reloc_block + 1), *e = p + reloc_block->SizeOfBlock - 8; p < e; p += sizeof(IMAGE_RELOC))
+        //auto reloc_size = reloc_directory.Size;
+        auto relocation_block_header = (IMAGE_BASE_RELOCATION *)(base + rva_to_local_offset(reloc_directory.VirtualAddress));
+        auto whole_block_size = relocation_block_header->SizeOfBlock;
+        //auto block_base = base + rva_to_local_offset(reloc_block->VirtualAddress);
+        static_assert(sizeof(IMAGE_BASE_RELOCATION) == 8);
+        for (uint8_t *p = (uint8_t *)(relocation_block_header + 1), *e = p + whole_block_size - sizeof(IMAGE_BASE_RELOCATION);
+             p < e;
+             p += sizeof(IMAGE_RELOC))
         {
             PIMAGE_RELOC pr = (PIMAGE_RELOC)p;
             switch (pr->type)
@@ -211,6 +192,68 @@ public:
         return success;
     }
 
+    void wipe_memory(void *address, size_t size)
+    {
+        static std::random_device d;
+        static std::mt19937_64 mt(d()); // get random number between [0, 2^64-1] don't need a uniform_int_distribution
+        int i = 0;
+        char *p = (char *)address;
+        for (i, p; i < size - 7; i += 8)
+        {
+            *(uint64_t *)(p + i) = mt();
+        }
+        for (i, p; i < size; i++)
+        {
+            *(uint8_t *)(p + i) = uint8_t(mt());
+        }
+    }
+
+    // note: after calling this, header is wiped, so you can't call any method retrive PE imformation,
+    // such as image_size() will fail after this call.
+    void wipe_header(size_t wipe_size = 1024)
+    {
+        wipe_memory(base, wipe_size);
+    }
+
+    // note: after calling this, imports are broken.
+    // Don't call any methods about import table after calling this
+    void wipe_imports()
+    {
+
+        auto pimports = (PIMAGE_IMPORT_DESCRIPTOR)(base + rva_to_local_offset(pe->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress));
+        auto n = pe->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size / sizeof(IMAGE_IMPORT_DESCRIPTOR);
+        for (int i = 0; i < n; i++)
+        {
+            auto &imp = pimports[i];
+            if (!imp.Name)
+                break;
+            auto pdllname = (char*)base + rva_to_local_offset(imp.Name);
+            std::string dll_name = pdllname;
+            wipe_memory(pdllname, dll_name.size());
+        }
+    }
+
+    // note: after calling this, relocations are broken.
+    // Don't call any methods about relocations table after calling this
+    void wipe_relocations()
+    {
+        auto &reloc_directory = pe->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC];
+        auto reloc_size = reloc_directory.Size;
+        auto reloc_block = (IMAGE_BASE_RELOCATION *)(base + rva_to_local_offset(reloc_directory.VirtualAddress));
+        auto size = reloc_block->SizeOfBlock;
+        auto block_base = base + rva_to_local_offset(reloc_block->VirtualAddress);
+        wipe_memory(reloc_block, size);
+    }
+
+    // note: after calling this, all informations are broken, 
+    // if you want to retrive entry_point, get it before this call!
+    void wipe_all_information()
+    {
+        wipe_relocations();
+        wipe_imports();
+        wipe_header();
+    }
+
     // load to an memory as an image. vbase must be a writable memory region larger than image_size()
     void load_as_image(void *vbase)
     {
@@ -233,7 +276,8 @@ public:
 };
 
 // used to parse a PE Image(Sections are loaded into memory)
-class ImagePEStructure64 : public RawPEStructure64 {
+class ImagePEStructure64 : public RawPEStructure64
+{
 public:
     using RawPEStructure64::RawPEStructure64;
     virtual uint64_t rva_to_local_offset(uint64_t rva)override

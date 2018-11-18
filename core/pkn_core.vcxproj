@@ -167,7 +167,13 @@
     <ClInclude Include="driver_control\RegistryDriverLoader.h" />
     <ClInclude Include="driver_control\ServiceDriverLoader.h" />
     <ClInclude Include="driver_control\PknDriver.h" />
+    <ClInclude Include="pe_structure\PEStructure.hpp" />
+    <ClInclude Include="pe_structure\PEUtils.hpp" />
+    <ClInclude Include="pe_structure\WindowsStructure.h" />
+    <ClInclude Include="registry\KernelRegistry.hpp" />
     <ClInclude Include="registry\Registry.hpp" />
+    <ClInclude Include="registry\RegistryStructures.h" />
+    <ClInclude Include="registry\UserRegistry.hpp" />
     <ClInclude Include="remote_process\disable_windows_min_max_definetion.h" />
     <ClInclude Include="remote_process\IAddressableProcess.h" />
     <ClInclude Include="remote_process\IProcess.h" />

@@ -99,6 +99,24 @@
     <ClInclude Include="driver_control\RegistryDriverLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="registry\KernelRegistry.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="registry\RegistryStructures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="registry\UserRegistry.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pe_structure\PEStructure.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pe_structure\WindowsStructure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pe_structure\PEUtils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\base.cpp">
