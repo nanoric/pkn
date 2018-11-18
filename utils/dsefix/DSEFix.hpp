@@ -13,8 +13,8 @@ class DSEFixAdaptor
 public:
     ~DSEFixAdaptor() = default;
 public:
-    virtual bool read_system_address(erptr_t address, void *buffer, uint64_t size) = 0;
-    virtual bool write_system_address(erptr_t address, void *buffer, uint64_t size) = 0;
+    virtual std::optional<uint32_t> read_system_32bit(erptr_t address) = 0;
+    virtual bool write_system_32bit(erptr_t address, uint32_t value) = 0;
 };
 class DSEFix
 {
@@ -93,10 +93,7 @@ public:
     // try to read current option value
     std::optional<uint32_t> read()
     {
-        uint32_t value;
-        if (_adaptor->read_system_address(target_address, &value, sizeof(value)))
-            return value;
-        return std::nullopt;
+        return _adaptor->read_system_32bit(target_address);
     }
 
     // disable DSE
@@ -120,16 +117,21 @@ public:
 protected:
     bool disable_no_check()
     {
-        if (!_adaptor->read_system_address(target_address, &org_value, sizeof(target_value)))
+        if (auto res = _adaptor->read_system_32bit(target_address); !res)
+        {
+            org_value = *res;
             return false;
-        if (!_adaptor->write_system_address(target_address, &target_value, sizeof(target_value)))
+        }
+        if (!_adaptor->write_system_32bit(target_address, target_value))
             return false;
         return true;
     }
     bool enable_no_check()
     {
-        if (!_adaptor->write_system_address(target_address, &org_value, sizeof(org_value)))
+        if (auto res = _adaptor->write_system_32bit(target_address, org_value); !res)
+        {
             return false;
+        }
         return true;
     }
 private:

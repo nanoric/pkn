@@ -210,7 +210,7 @@ public:
 
     // note: after calling this, header is wiped, so you can't call any method retrive PE imformation,
     // such as image_size() will fail after this call.
-    void wipe_header(size_t wipe_size = 1024)
+    void wipe_header(size_t wipe_size = sizeof(IMAGE_NT_HEADERS64) + sizeof(IMAGE_DOS_HEADER) + 0x100)
     {
         wipe_memory(base, wipe_size);
     }
