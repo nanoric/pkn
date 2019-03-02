@@ -35,7 +35,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -48,7 +48,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -167,9 +167,13 @@
     <ClInclude Include="driver_control\RegistryDriverLoader.h" />
     <ClInclude Include="driver_control\ServiceDriverLoader.h" />
     <ClInclude Include="driver_control\PknDriver.h" />
+    <ClInclude Include="marcos\debug_print.h" />
+    <ClInclude Include="memory\memory.h" />
+    <ClInclude Include="memory\Nonpaged.hpp" />
     <ClInclude Include="pe_structure\PEStructure.hpp" />
     <ClInclude Include="pe_structure\PEUtils.hpp" />
     <ClInclude Include="pe_structure\WindowsStructure.h" />
+    <ClInclude Include="reader\TypedReader.hpp" />
     <ClInclude Include="registry\KernelRegistry.hpp" />
     <ClInclude Include="registry\Registry.hpp" />
     <ClInclude Include="registry\RegistryStructures.h" />
@@ -182,6 +186,7 @@
     <ClInclude Include="remote_process\MemoryRegion.h" />
     <ClInclude Include="remote_process\ProcessUtils.h" />
     <ClInclude Include="remote_process\UserProcess.h" />
+    <ClInclude Include="writer\TypedWriter.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\base.cpp" />
@@ -189,11 +194,13 @@
     <ClCompile Include="driver_control\RegistryDriverLoader.cpp" />
     <ClCompile Include="driver_control\ServiceDriverLoader.cpp" />
     <ClCompile Include="driver_control\PknDriver.cpp" />
+    <ClCompile Include="reader\reader.cpp" />
     <ClCompile Include="remote_process\IAddressableProcess.cpp" />
     <ClCompile Include="remote_process\KernelProcess.cpp" />
     <ClCompile Include="remote_process\ProcessUtils.cpp" />
     <ClCompile Include="remote_process\UserProcess.cpp" />
     <ClCompile Include="wrap.cpp" />
+    <ClCompile Include="writer\writer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="base\pknstl\algorithm" />
@@ -271,6 +278,9 @@
     <None Include="base\pknstl\vector_set" />
     <None Include="base\pknstl\version" />
     <None Include="base\pknstl\weak_ptr" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="encrypted_types.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

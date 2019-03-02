@@ -34,14 +34,15 @@ public:
 
     // process memory
     //void read_process_memories(pid_t pid, size_t count, const ReadProcessMemoriesData *pdatas) const;
-    bool read_process_memory(pid_t pid, erptr_t remote_address, size_t size, void *buffer) const noexcept;
+    bool read_process_memory(const pid_t &pid, const erptr_t &remote_address, size_t size, void *buffer) const noexcept;
     bool write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data) const noexcept;
+    bool acquire_lock(const pid_t &pid, const erptr_t &remote_lock_address) const noexcept;
 
     // process
     bool wait_for_process(pid_t pid, uint64_t timeout_nanosec, NTSTATUS *status)const noexcept;
     bool wait_for_thread(pid_t tid, uint64_t timeout_nanosec, NTSTATUS *status)const noexcept;
     inline bool is_process_alive(pid_t pid) const noexcept { NTSTATUS status; wait_for_process(pid, 0, &status); return status == STATUS_TIMEOUT; };
-    bool force_write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data)const noexcept;
+    bool force_write_process_memory(pid_t pid, const erptr_t &remote_address, size_t size, const void *data)const noexcept;
     bool virtual_query(pid_t pid, erptr_t remote_address, MEMORY_BASIC_INFORMATION *mbi) const noexcept;
     bool get_mapped_file(pid_t pid, uint64_t address, estr_t *mapped_file) const noexcept;
     bool get_process_base(pid_t pid, erptr_t *base) const noexcept;

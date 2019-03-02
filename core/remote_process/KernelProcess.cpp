@@ -32,14 +32,24 @@ namespace pkn
         return driver().is_process_alive(pid());
     }
 
-    bool KernelReadableProcess::read_unsafe(erptr_t address, size_t size, void *buffer) const
+    bool KernelReadableProcess::read_unsafe(const erptr_t &address, size_t size, void *buffer) const noexcept
     {
         return driver().read_process_memory(pid(), address, size, buffer);
     }
 
-    bool KernelWritableProcess::write_unsafe(erptr_t address, size_t size, const void *buffer) const
+    bool KernelWritableProcess::write_unsafe(erptr_t address, size_t size, const void *buffer) const noexcept
     {
         return driver().write_process_memory(pid(), address, size, buffer);
+    }
+
+    bool KernelWritableProcess::force_write(erptr_t address, size_t size, const void *buffer) const noexcept
+    {
+        return driver().force_write_process_memory(pid(), address, size, buffer);
+    }
+
+    bool KernelWritableProcess::acquire_lock(const erptr_t &lock_address) const noexcept
+    {
+        return driver().acquire_lock(pid(), lock_address);
     }
 
     MemoryRegions KernelProcessRegions::get_all_memory_regions()
@@ -92,7 +102,7 @@ namespace pkn
         return rnullptr;
     }
 
-    bool KernelProcessMemory::allocate(size_t size, erptr_t*address, size_t *allocated_size) const
+    bool KernelProcessMemory::allocate(size_t size, erptr_t*address, size_t *allocated_size, MemoryProtect protect) const
     {
         return driver().allocate_virtual_memory(pid(), rnullptr, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE, address, allocated_size);
     }

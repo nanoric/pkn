@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include <random>
+#include "../memory/memory.h"
 
 namespace pkn
 {
@@ -192,27 +193,12 @@ public:
         return success;
     }
 
-    void wipe_memory(void *address, size_t size)
-    {
-        static std::random_device d;
-        static std::mt19937_64 mt(d()); // get random number between [0, 2^64-1] don't need a uniform_int_distribution
-        int i = 0;
-        char *p = (char *)address;
-        for (i, p; i < size - 7; i += 8)
-        {
-            *(uint64_t *)(p + i) = mt();
-        }
-        for (i, p; i < size; i++)
-        {
-            *(uint8_t *)(p + i) = uint8_t(mt());
-        }
-    }
 
     // note: after calling this, header is wiped, so you can't call any method retrive PE imformation,
     // such as image_size() will fail after this call.
     void wipe_header(size_t wipe_size = sizeof(IMAGE_NT_HEADERS64) + sizeof(IMAGE_DOS_HEADER) + 0x100)
     {
-        wipe_memory(base, wipe_size);
+        fill_random(base, wipe_size);
     }
 
     // note: after calling this, imports are broken.
@@ -229,7 +215,7 @@ public:
                 break;
             auto pdllname = (char*)base + rva_to_local_offset(imp.Name);
             std::string dll_name = pdllname;
-            wipe_memory(pdllname, dll_name.size());
+            fill_random(pdllname, dll_name.size());
         }
     }
 
@@ -242,7 +228,7 @@ public:
         auto reloc_block = (IMAGE_BASE_RELOCATION *)(base + rva_to_local_offset(reloc_directory.VirtualAddress));
         auto size = reloc_block->SizeOfBlock;
         auto block_base = base + rva_to_local_offset(reloc_block->VirtualAddress);
-        wipe_memory(reloc_block, size);
+        fill_random(reloc_block, size);
     }
 
     // note: after calling this, all informations are broken, 

@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "../base/types.h"
-#include "../process/MemoryRegion.h"
+#include "../remote_process/MemoryRegion.h"
 
 
 namespace pkn
@@ -26,5 +26,6 @@ namespace pkn
             return true;
         }
     };
-    using seek_result_t = Outputs;
+    using seek_results_t = Outputs;
+    using seek_result_t = Output;
 }

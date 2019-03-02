@@ -43,6 +43,11 @@ public:
         }
         return loaded;
     }
+    void detach()
+    {
+        created = false;
+        loaded = false;
+    }
     bool stop()
     {
         if (loaded)

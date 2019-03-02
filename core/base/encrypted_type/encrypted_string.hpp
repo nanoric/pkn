@@ -18,52 +18,67 @@ public:
     using ebasic_t = encrypted_number<basic_t>;
     using internal_t = std::basic_string<ebasic_t>;
 public:
+    // construct from encrypted_string
+    using internal_t::basic_string;
+
     inline basic_encrypted_string()
     {}
 
+    // construct from iterator
     template <class IteratorType>
     inline basic_encrypted_string(IteratorType _beg, IteratorType _end)
+        : internal_t(_beg, _end)
     {
-        this->reserve(_end - _beg);
-        std::copy(_beg, _end, std::back_inserter(*this));
     }
 
     template <class AnyStringType>
     inline basic_encrypted_string(const AnyStringType &rhs)
-        //: internal_t(rhs.begin(), rhs.end())
-    {
-        this->reserve(rhs.size());
-        std::copy(rhs.begin(), rhs.end(), std::back_inserter(*this));
-    }
+        : internal_t(rhs.begin(), rhs.end())
+    {}
 
-    //template <class AnyType>
-    //inline basic_encrypted_string(const std::basic_string<AnyType> &rhs)
-    //{
-    //    std::copy(rhs.begin(), rhs.end(), std::back_inserter(*this));
-    //}
-
-    //template <class AnyType>
-    //inline basic_encrypted_string(const std::basic_string_view<AnyType> &rhs)
-    //{
-    //    this->reserve(rhs.size());
-    //    std::copy(rhs.begin(), rhs.end(), std::back_insert_iterator(*this));
-    //}
-
-    template <class AnyCharType>
-    inline basic_encrypted_string(const AnyCharType *rhs, size_t size=0)
+    // construct from T*
+    inline basic_encrypted_string(const T *rhs, size_t size=0)
     {
         if (size == 0)
-            size = std::basic_string<AnyCharType>(rhs).size();
+            size = std::basic_string<T>(rhs).size();
         this->reserve(size);
         std::copy(rhs, rhs+size, std::back_insert_iterator(*this));
     }
 
-    template <class AnyType>
-    inline bool operator == (const std::basic_string_view<AnyType> &rhs) const
+    template <class AnyStringType>
+    inline bool operator == (const AnyStringType &rhs) const
     {
-        return *this == basic_encrypted_string<T>(rhs);
+        // todo: hashed based or iterator based, without type conversion
+        return std::equal(this->cbegin(), this->cend(), rhs.cbegin(), rhs.cend());
     }
 
+    template <class AnyStringType>
+    inline basic_encrypted_string<T> operator + (const AnyStringType &rhs) const
+    {
+        basic_encrypted_string<T> retv;
+        retv.reserve(this->size() + rhs.size());
+        std::copy(this->cbegin(), this->cend(), std::back_insert_iterator(retv));
+        std::copy(rhs.cbegin(), rhs.cend(), std::back_insert_iterator(retv));
+        //retv.append(this->cbegin(), this->cend());
+        //retv.append(rhs.cbegin(), rhs.cend());
+        return retv;
+    }
+
+    inline basic_encrypted_string<T> operator + (const T &rhs) const
+    {
+        basic_encrypted_string<T> retv(*this);
+        retv.push_back(rhs);
+        return retv;
+    }
+
+
+    template <class AnyStringType>
+    inline basic_encrypted_string<T> &operator += (const AnyStringType &rhs)
+    {
+        this->reserve(this->size() + rhs.size());
+        this->append(rhs.begin(), rhs.end());
+        return *this;
+    }
 public:
     template <class string_type>
     inline string_type to() const

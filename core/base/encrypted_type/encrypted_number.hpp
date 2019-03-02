@@ -87,7 +87,7 @@ inline compile_time::random_t gen_xor<uint64_t>() noexcept
     static uint64_t n = __global_xor_key_for_encrypted_number;
     constexpr uint64_t _1111prime = 281474976710597ull;
     constexpr uint64_t _0101prime = 3074457345618258599ull;
-    n = (n << 1) ^ _0101prime;
+    n = n * _0101prime + 1;
     return n;
 }
 
@@ -95,9 +95,9 @@ template <>
 inline compile_time::random_t gen_xor<char32_t>() noexcept
 {
     static char32_t n = __global_xor_key_for_encrypted_number;
-    constexpr char32_t _1111prime32 = 268435399ul;
-    constexpr char32_t _0101prime32 = 1431655777ul;
-    n = (n << 1) ^ _0101prime32;
+    constexpr char32_t _1111prime = 268435399ul;
+    constexpr char32_t _0101prime = 1431655777ul;
+    n = n * _0101prime + 1;
     return n;
 }
 
@@ -105,9 +105,9 @@ template <>
 inline compile_time::random_t gen_xor<wchar_t>() noexcept
 {
     static wchar_t n = (wchar_t)(0xFFFF&__global_xor_key_for_encrypted_number);
-    constexpr wchar_t _1111prime16 = 4093;
-    constexpr wchar_t _0101prime16 = 21841;
-    n = (n << 1) ^ _0101prime16;
+    constexpr wchar_t _1111prime = 4093;
+    constexpr wchar_t _0101prime = 21841;
+    n = n * _0101prime + 1;
     return n;
 }
 
@@ -123,9 +123,9 @@ template <>
 inline compile_time::random_t gen_xor<uint32_t>() noexcept
 {
     static uint32_t n = __global_xor_key_for_encrypted_number;
-    constexpr uint32_t _1111prime32 = 268435399ul;
-    constexpr uint32_t _0101prime32 = 1431655777ul;
-    n = (n << 1) ^ _0101prime32;
+    constexpr uint32_t _1111prime = 268435399ul;
+    constexpr uint32_t _0101prime = 1431655777ul;
+    n = n * _0101prime + 1;
     return n;
 }
 
@@ -133,9 +133,9 @@ template <>
 inline compile_time::random_t gen_xor<uint16_t>() noexcept
 {
     static uint16_t n = (wchar_t)(0xFFFF&__global_xor_key_for_encrypted_number);
-    constexpr uint16_t _1111prime16 = 4093;
-    constexpr uint16_t _0101prime16 = 21841;
-    n = (n << 1) ^ _0101prime16;
+    constexpr uint16_t _1111prime = 4093;
+    constexpr uint16_t _0101prime = 21841;
+    n = n * _0101prime + 1;
     return n;
 }
 
@@ -170,6 +170,7 @@ public:
         _xor1((internal_t)gen_xor<internal_t>()),
         _xor2((internal_t)gen_xor<internal_t>()),
         _val((internal_t)encrypt(val)) {}
+
     constexpr inline encrypted_number(const encrypted_number &rhs) = default;
     constexpr inline encrypted_number(const const_encrypted_number<internal_t> &rhs) : _xor1(rhs._xor1), _xor2(rhs._xor2), _val(rhs._val) {}
     constexpr inline encrypted_number() : _xor1(0), _xor2(0), _val((internal_t)encrypt(internal_t(0))) {}

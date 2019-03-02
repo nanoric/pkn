@@ -83,7 +83,7 @@ pid_t UserBasicProcess::pid() const
     return pid();
 }
 
-bool UserReadableProcess::read_unsafe(erptr_t address, size_t size, void *buffer) const
+bool UserReadableProcess::read_unsafe(const erptr_t &address, size_t size, void *buffer) const
 {
     size_t nread;
     return ReadProcessMemory(handle(), (void *)(rptr_t)address, buffer, size, &nread);

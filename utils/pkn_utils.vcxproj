@@ -34,7 +34,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -45,7 +45,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -101,6 +101,9 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -117,6 +120,9 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -124,15 +130,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Console\console.cpp" />
     <ClCompile Include="dummy.cpp" />
     <ClCompile Include="PdbHelper\PdbHelper.cpp" />
+    <ClCompile Include="UE4\init.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Console\console.h" />
     <ClInclude Include="dsefix\DSEFix.hpp" />
+    <ClInclude Include="Environment\Environment.hpp" />
+    <ClInclude Include="fps_counter\FpsCounter.hpp" />
     <ClInclude Include="PdbHelper\dia\cvconst.h" />
     <ClInclude Include="PdbHelper\dia\dia2.h" />
     <ClInclude Include="PdbHelper\dia\diacreate.h" />
     <ClInclude Include="PdbHelper\PdbHelper.h" />
+    <ClInclude Include="timer_guard\TimerGuard.hpp" />
+    <ClInclude Include="UE4\init.h" />
+    <ClInclude Include="UE4\LocalClass.hpp" />
+    <ClInclude Include="UE4\Types\EngineClass.h" />
+    <ClInclude Include="UE4\UnrealNamesCache.hpp" />
+    <ClInclude Include="UE4\UnrealReader.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

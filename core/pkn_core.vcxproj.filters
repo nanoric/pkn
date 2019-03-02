@@ -117,6 +117,21 @@
     <ClInclude Include="pe_structure\PEUtils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="memory\Nonpaged.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="marcos\debug_print.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="writer\TypedWriter.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="reader\TypedReader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\base.cpp">
@@ -147,6 +162,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="driver_control\RegistryDriverLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="writer\writer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="reader\reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -226,5 +247,8 @@
     <None Include="base\pknstl\vector_set" />
     <None Include="base\pknstl\version" />
     <None Include="base\pknstl\weak_ptr" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="encrypted_types.natvis" />
   </ItemGroup>
 </Project>

@@ -41,7 +41,7 @@ private:
     static estr_t make_symbol_path(const std::wstring &local_cache_path) noexcept
     {
         return
-        estr_t(make_estr("srv*").to_wstring()) +
+        estr_t(make_estr("srv*")) +
         estr_t(local_cache_path) +
         estr_t(make_estr("*https://msdl.microsoft.com/download/symbols"));
     }

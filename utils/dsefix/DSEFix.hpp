@@ -119,8 +119,11 @@ protected:
     {
         if (auto res = _adaptor->read_system_32bit(target_address); !res)
         {
-            org_value = *res;
             return false;
+        }
+        else
+        {
+            original_value = *res;
         }
         if (!_adaptor->write_system_32bit(target_address, target_value))
             return false;
@@ -128,7 +131,7 @@ protected:
     }
     bool enable_no_check()
     {
-        if (auto res = _adaptor->write_system_32bit(target_address, org_value); !res)
+        if (auto res = _adaptor->write_system_32bit(target_address, original_value); !res)
         {
             return false;
         }
@@ -143,6 +146,6 @@ public:
     erptr_t CiOptions = 0;
     erptr_t CiEnabled = 0;
     erptr_t target_address;
-    uint32_t target_value, org_value;
+    uint32_t target_value, original_value;
 };
 }

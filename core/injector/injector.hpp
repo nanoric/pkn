@@ -17,14 +17,14 @@ namespace pkn
     class SingletonInjector : protected noncopyable
     {
     public:
-        static T &get()
+        inline static T &get()
         {
             if (_instance != nullptr)
                 return *_instance;
             //throw instance_not_set_error();
             return *(T*)nullptr; // !!! reference to nullptr?!
         }
-        static bool set(T *instance)
+        inline static bool set(T *instance)
         {
             if (_instance == nullptr)
             {

@@ -41,7 +41,7 @@ namespace pkn
         HANDLE _handle = nullptr;
     };
 
-    class UserBasicProcess : virtual public UserProcessBase, virtual public IBasicProcess
+    class UserBasicProcess : virtual public UserProcessBase, virtual public IProcessBasic
     {
     public:
         UserBasicProcess(pid_t pid);
@@ -55,16 +55,16 @@ namespace pkn
         erptr_t _base;
     };
 
-    class UserReadableProcess : virtual public UserProcessBase, virtual public IReadableProcess
+    class UserReadableProcess : virtual public UserProcessBase, virtual public IProcessReader
     {
     public:
         UserReadableProcess(pid_t pid) : UserProcessBase(pid) {}
         virtual ~UserReadableProcess() override = default;
     public:
-        virtual bool read_unsafe(erptr_t address, size_t size, void *buffer) const override;
+        virtual bool read_unsafe(const erptr_t &address, size_t size, void *buffer) const override;
     };
 
-    class UserWritableProcess : virtual public UserProcessBase, virtual public IWritableProcess
+    class UserWritableProcess : virtual public UserProcessBase, virtual public IProcessWriter
     {
     public:
         UserWritableProcess(pid_t pid) : UserProcessBase(pid) {}
@@ -88,7 +88,7 @@ namespace pkn
         virtual bool get_mapped_file(erptr_t remote_address, estr_t *mapped_file) const override;
     };
 
-    class UserExtraProcess : virtual public UserProcessBase, virtual public IExtraProcess
+    class UserExtraProcess : virtual public UserProcessBase, virtual public IProcessExtra
     {
     public:
         UserExtraProcess(pid_t pid) : UserProcessBase(pid) {}
@@ -103,7 +103,7 @@ namespace pkn
         public virtual UserReadableProcess,
         public virtual UserWritableProcess,
         public virtual UserProcessRegions,
-        public virtual ProcessAddressTypeJudger
+        public virtual ProcessAddressTypeInfo
     {
     public:
         UserProcess(pid_t pid) :
@@ -112,7 +112,7 @@ namespace pkn
             UserReadableProcess(pid),
             UserWritableProcess(pid),
             UserProcessRegions(pid),
-            ProcessAddressTypeJudger(*this)
+            ProcessAddressTypeInfo()
         {
         }
         bool init()
@@ -122,7 +122,7 @@ namespace pkn
             if (!UserBasicProcess::init())
                 return false;
             UserProcessRegions::init();
-            ProcessAddressTypeJudger::init();
+            ProcessAddressTypeInfo::init(this, this);
             return true;
         }
         virtual ~UserProcess() override = default;

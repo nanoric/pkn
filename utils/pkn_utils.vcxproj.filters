@@ -21,6 +21,12 @@
     <ClCompile Include="PdbHelper\PdbHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UE4\init.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Console\console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dsefix\DSEFix.hpp">
@@ -36,6 +42,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PdbHelper\dia\diacreate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fps_counter\FpsCounter.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="timer_guard\TimerGuard.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UE4\Types\EngineClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UE4\init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UE4\LocalClass.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UE4\UnrealNamesCache.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UE4\UnrealReader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Environment.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Console\console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

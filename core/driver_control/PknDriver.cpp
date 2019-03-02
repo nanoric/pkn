@@ -68,7 +68,7 @@ bool PknDriver::query_system_information(
     }
 }
 
-bool PknDriver::read_process_memory(pid_t pid, erptr_t remote_address, size_t size, void *buffer) const noexcept
+bool PknDriver::read_process_memory(const pid_t &pid, const erptr_t &remote_address, size_t size, void *buffer) const noexcept
 {
     ReadProcessMemoryInput inp = { xor_key, pid, remote_address, size, (uint64_t)buffer };
     //inp.xor_val = 0;
@@ -83,10 +83,32 @@ bool PknDriver::read_process_memory(pid_t pid, erptr_t remote_address, size_t si
 
 bool PknDriver::write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data) const noexcept
 {
-    WriteProcessMemoryInput inp = { xor_key, pid, remote_address, size, (uint64_t)data };
+	WriteProcessMemoryInput inp;
+	inp.xor_val = xor_key;
+	inp.processid = pid;
+	inp.startaddress = remote_address;
+	inp.bytestowrite = size;
+	inp.buffer = (uint64_t)data;
     EncryptInputByXor();
     // !!!!!!note: buffer for write process memory is not xor protected!!!!!
     return ioctl(IOCTL_PLAYERKNOWNS_WRITE_PROCESS_MEMORY, &inp, sizeof(inp), nullptr, nullptr);
+}
+
+bool PknDriver::acquire_lock(const pid_t &pid, const erptr_t &remote_lock_address) const noexcept
+{
+    AcquireLockInput inp;
+    AcquireLockOutput oup;
+    uint32_t out_size = sizeof(oup);
+    inp.xor_val = xor_key;
+    inp.processid = pid;
+    inp.remote_lock_address = remote_lock_address;
+    //inp.xor_val = 0;
+    EncryptInputByXor();
+    if (ioctl(IOCTL_PLAYERKNOWNS_ACQUIRE_LOCK, &inp, sizeof(inp), &oup, &out_size))
+    {
+        return oup.succeed;
+    }
+    return false;
 }
 
 std::optional<uint64_t> PknDriver::read_system_memory(erptr_t remote_address, size_t size, void *buffer) const noexcept
@@ -150,12 +172,30 @@ bool PknDriver::free_nonpaged_memory(erptr_t ptr) const noexcept
     return false;
 }
 
-bool PknDriver::force_write_process_memory(pid_t pid, erptr_t remote_address, size_t size, const void *data) const noexcept
+bool PknDriver::force_write_process_memory(pid_t pid, const erptr_t &remote_address, size_t size, const void *data) const noexcept
 {
-    uint64_t physical_address;
-    if (_get_physical_memory_address(pid, remote_address, &physical_address))
-        return _write_physical_memory(physical_address, size, data);
-    return false;
+    const int once_write = 0x1000;
+    if (size <= once_write)
+    {
+        WriteProcessMemoryInput inp = { xor_key, pid, remote_address, size, (uint64_t)data };
+        EncryptInputByXor();
+        return ioctl(IOCTL_PLAYERKNOWNS_FORCE_WRITE_PROCESS_MEMORY, &inp, sizeof(inp), nullptr, nullptr);
+    }
+    else
+    {
+        rptr_t r = remote_address;
+        char *pd = (char*)data;
+        size_t size_left = size;
+        while (size_left > 0)
+        {
+            if (!force_write_process_memory(pid, r, size_left < once_write ? size_left : once_write, pd))
+                break;
+            r += once_write;
+            pd += once_write;
+            size_left -= once_write;
+        }
+        return size_left != size;
+    }
 }
 
 bool PknDriver::virtual_query(pid_t pid, erptr_t remote_address, MEMORY_BASIC_INFORMATION *mbi) const noexcept
@@ -373,7 +413,8 @@ bool PknDriver::query_thread_information(uint64_t tid, uint64_t informaiton_clas
 
 std::optional<erptr_t> PknDriver::get_teb_address(uint64_t tid)
 {
-    typedef struct _THREAD_BASIC_INFORMATION {
+    typedef struct _THREAD_BASIC_INFORMATION
+    {
         NTSTATUS                ExitStatus;
         PVOID                   TebBaseAddress;
         CLIENT_ID               ClientId;

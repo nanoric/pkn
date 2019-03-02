@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="encrypted_number&lt;int&gt;">
+    <DisplayString >org:{(int)(_val ^ _xor1 ^ _xor2)}</DisplayString>
+  </Type>
+
+  <Type Name="encrypted_number&lt;char&gt;">
+    <DisplayString >{(char)(_val ^ _xor1 ^ _xor2)}</DisplayString>
+  </Type>
+  <Type Name="encrypted_number&lt;wchar_t&gt;">
+    <DisplayString >{(wchar_t)(_val ^ _xor1 ^ _xor2)}</DisplayString>
+  </Type>
+  <Type Name="encrypted_number&lt;char32_t&gt;">
+    <DisplayString >{(char32_t)(_val ^ _xor1 ^ _xor2)}</DisplayString>
+  </Type>
+  <Type Name="encrypted_number&lt;unsigned __int8&gt;">
+    <DisplayString >org:{(unsigned __int8)(_val ^ _xor1 ^ _xor2)}, val:{_val}</DisplayString>
+  </Type>
+  <Type Name="encrypted_number&lt;unsigned __int16&gt;">
+    <DisplayString >org:{(unsigned __int16)(_val ^ _xor1 ^ _xor2)}, val:{_val}</DisplayString>
+  </Type>
+  <Type Name="encrypted_number&lt;unsigned __int32&gt;">
+    <DisplayString >org:{(unsigned __int32)(_val ^ _xor1 ^ _xor2)}, val:{_val}</DisplayString>
+  </Type>
+  <Type Name="encrypted_number&lt;unsigned __int64&gt;">
+    <DisplayString >org:{(unsigned __int64)(_val ^ _xor1 ^ _xor2)}, val:{_val}</DisplayString>
+  </Type>
+  <Type Name="encrypted_number&lt;*&gt;">
+    <DisplayString >org:{(unsigned __int64)(_val ^ _xor1 ^ _xor2)}, val:{_val}</DisplayString>
+  </Type>
+
+  <Type Name="basic_encrypted_string&lt;*&gt;">
+    <Intrinsic Name="size" Expression="_Mypair._Myval2._Mysize" />
+    <Intrinsic Name="capacity" Expression="_Mypair._Myval2._Myres" />
+    <!--<DisplayString Condition="capacity() &lt; _Mypair._Myval2._BUF_SIZE">{_Mypair._Myval2._Bx._Buf,s32}</DisplayString>-->
+    <!--<DisplayString Condition="capacity() &gt;= _Mypair._Myval2._BUF_SIZE">{_Mypair._Myval2._Bx._Ptr,s32}</DisplayString>-->
+    <!--<StringView Condition="capacity() &lt; _Mypair._Myval2._BUF_SIZE">_Mypair._Myval2._Bx._Buf,s32</StringView>-->
+    <!--<StringView Condition="capacity() &gt;= _Mypair._Myval2._BUF_SIZE">_Mypair._Myval2._Bx._Ptr,s32</StringView>-->
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">size()</Item>
+      <!--<Item Name="[capacity]" ExcludeView="simple">capacity()</Item>-->
+      <!--<Item Name="[allocator]" ExcludeView="simple">_Mypair</Item>-->
+      <ArrayItems>
+        <Size>_Mypair._Myval2._Mysize</Size>
+        <ValuePointer Condition="capacity() &lt; _Mypair._Myval2._BUF_SIZE">_Mypair._Myval2._Bx._Buf</ValuePointer>
+        <ValuePointer Condition="capacity() &gt;= _Mypair._Myval2._BUF_SIZE">_Mypair._Myval2._Bx._Ptr</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>

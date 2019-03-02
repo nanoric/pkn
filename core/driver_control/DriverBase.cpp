@@ -24,7 +24,7 @@ namespace pkn
 
         auto h = CreateFileW(name.c_str(),
             GENERIC_READ | GENERIC_WRITE,
-            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
             nullptr,
             OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL,
